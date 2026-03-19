@@ -1,0 +1,12 @@
+{
+  "steps": [
+    {
+      "line": 1,
+      "formula": "string",
+      "rule": "string",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "string"
+    }
+  ]
+}

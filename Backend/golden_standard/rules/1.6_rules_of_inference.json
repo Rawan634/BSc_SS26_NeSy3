@@ -1,0 +1,192 @@
+[
+  {
+    "name": "Modus Ponens",
+    "symbol": "→E",
+    "pattern_description": "From p → q and p, conclude q.",
+    "premises": [
+      "p → q",
+      "p"
+    ],
+    "conclusion": "q",
+    "natural_language": "The tautology (p ∧(p→q))→qis the basis of the rule of inference called modus ponens, or the law of detachment.",
+    "full_explanation": "1.6 Rules of Inference 75 validity of some relatively simple argument forms, called rules of inference. These rules of inference can be used as building blocks to construct more complicated valid argument forms. We will now introduce the most important rules of inference in propositional logic. The tautology (p ∧(p→q))→qis the basis of the rule of inference called modus ponens, or the law of detachment. (Modus ponens is Latin for mode that affirms.) This tautology leads to the following valid argument form, which we have already seen in our initial discussion aboutarguments (where, as before, the symbol ∴denotes “therefore”): pp→q ∴q Using this notation, the hypotheses are written in a column, followed by a horizontal bar, fol-lowed by a line that begins with the therefore symbol and ends with the conclusion. In particular,modus ponens tells us that if a conditional statement and the hypothesis of this conditional state-ment are both true, then the conclusion must also be true. Example 1 illustrates the use of modusponens. EXAMPLE 1 Suppose that the conditional statement “If it snows today, then we will go skiing” and its hy-pothesis, “It is snowing today,” are true. Then, by modus ponens, it follows that the conclusionof the conditional statement",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 75
+  },
+  {
+    "name": "Modus Tollens",
+    "symbol": "MT",
+    "pattern_description": "From p → q and ¬q, conclude ¬p.",
+    "premises": [
+      "p → q",
+      "¬q"
+    ],
+    "conclusion": "¬p",
+    "natural_language": "From p → q and ¬q, conclude ¬p.",
+    "full_explanation": "76 1 / The Foundations: Logic and Proofs TABLE 1 Rules of Inference. Rule of Inference Tautology Name p p→q ∴q(p∧(p→q))→q Modus ponens ¬qp→q ∴¬p(¬q∧(p→q))→¬p Modus tollens p→q q→r ∴p→r((p→q)∧(q→r))→(p→r) Hypothetical syllogism p∨q ¬p ∴q((p∨q)∧¬p)→q Disjunctive syllogism p ∴p∨qp→(p∨q) Addition p∧q ∴p(p∧q)→p Simplification pq ∴p∧q((p)∧(q))→(p∧q) Conjunction p∨q ¬p∨r ∴q∨r((p∨q)∧(¬p∨r))→(q∨r) Resolution This is an argument that uses the addition rule. ◂ EXAMPLE 4 State which rule of inference is the basis of the following argument: “It is below freezing and raining now. Therefore, it is below freezing now.” Solution: Letpbe the proposition “It is below freezing now,” and let qbe the proposition “It is raining now.” This argument is of the form p∧q ∴p This argument uses the simplification rule. ◂ EXAMPLE 5 State which rule of inference is used in the argument: If it rains today, then we will not have a barbecue today. If we do not have a barbecue today, then we will have a barbecue tomorrow. Therefore, if it rains today, then we will have abarbecu",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 76
+  },
+  {
+    "name": "Hypothetical Syllogism",
+    "symbol": "HS",
+    "pattern_description": "From p → q and q → r, conclude p → r.",
+    "premises": [
+      "p → q",
+      "q → r"
+    ],
+    "conclusion": "p → r",
+    "natural_language": "From p → q and q → r, conclude p → r.",
+    "full_explanation": "76 1 / The Foundations: Logic and Proofs TABLE 1 Rules of Inference. Rule of Inference Tautology Name p p→q ∴q(p∧(p→q))→q Modus ponens ¬qp→q ∴¬p(¬q∧(p→q))→¬p Modus tollens p→q q→r ∴p→r((p→q)∧(q→r))→(p→r) Hypothetical syllogism p∨q ¬p ∴q((p∨q)∧¬p)→q Disjunctive syllogism p ∴p∨qp→(p∨q) Addition p∧q ∴p(p∧q)→p Simplification pq ∴p∧q((p)∧(q))→(p∧q) Conjunction p∨q ¬p∨r ∴q∨r((p∨q)∧(¬p∨r))→(q∨r) Resolution This is an argument that uses the addition rule. ◂ EXAMPLE 4 State which rule of inference is the basis of the following argument: “It is below freezing and raining now. Therefore, it is below freezing now.” Solution: Letpbe the proposition “It is below freezing now,” and let qbe the proposition “It is raining now.” This argument is of the form p∧q ∴p This argument uses the simplification rule. ◂ EXAMPLE 5 State which rule of inference is used in the argument: If it rains today, then we will not have a barbecue today. If we do not have a barbecue today, then we will have a barbecue tomorrow. Therefore, if it rains today, then we will have abarbecue tomorrow.",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 76
+  },
+  {
+    "name": "Disjunctive Syllogism",
+    "symbol": "DS",
+    "pattern_description": "From p ∨ q and ¬p, conclude q.",
+    "premises": [
+      "p ∨ q",
+      "¬p"
+    ],
+    "conclusion": "q",
+    "natural_language": "From p ∨ q and ¬p, conclude q.",
+    "full_explanation": "76 1 / The Foundations: Logic and Proofs TABLE 1 Rules of Inference. Rule of Inference Tautology Name p p→q ∴q(p∧(p→q))→q Modus ponens ¬qp→q ∴¬p(¬q∧(p→q))→¬p Modus tollens p→q q→r ∴p→r((p→q)∧(q→r))→(p→r) Hypothetical syllogism p∨q ¬p ∴q((p∨q)∧¬p)→q Disjunctive syllogism p ∴p∨qp→(p∨q) Addition p∧q ∴p(p∧q)→p Simplification pq ∴p∧q((p)∧(q))→(p∧q) Conjunction p∨q ¬p∨r ∴q∨r((p∨q)∧(¬p∨r))→(q∨r) Resolution This is an argument that uses the addition rule. ◂ EXAMPLE 4 State which rule of inference is the basis of the following argument: “It is below freezing and raining now. Therefore, it is below freezing now.” Solution: Letpbe the proposition “It is below freezing now,” and let qbe the proposition “It is raining now.” This argument is of the form p∧q ∴p This argument uses the simplification rule. ◂ EXAMPLE 5 State which rule of inference is used in the argument: If it rains today, then we will not have a barbecue today. If we do not have a barbecue today, then we will have a barbecue tomorrow. Therefore, if it rains today, then we will have abarbecue tomorrow.",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 76
+  },
+  {
+    "name": "Addition",
+    "symbol": "∨I",
+    "pattern_description": "From p, conclude p ∨ q.",
+    "premises": [
+      "p"
+    ],
+    "conclusion": "p ∨ q",
+    "natural_language": "From p, conclude p ∨ q.",
+    "full_explanation": "76 1 / The Foundations: Logic and Proofs TABLE 1 Rules of Inference. Rule of Inference Tautology Name p p→q ∴q(p∧(p→q))→q Modus ponens ¬qp→q ∴¬p(¬q∧(p→q))→¬p Modus tollens p→q q→r ∴p→r((p→q)∧(q→r))→(p→r) Hypothetical syllogism p∨q ¬p ∴q((p∨q)∧¬p)→q Disjunctive syllogism p ∴p∨qp→(p∨q) Addition p∧q ∴p(p∧q)→p Simplification pq ∴p∧q((p)∧(q))→(p∧q) Conjunction p∨q ¬p∨r ∴q∨r((p∨q)∧(¬p∨r))→(q∨r) Resolution This is an argument that uses the addition rule. ◂ EXAMPLE 4 State which rule of inference is the basis of the following argument: “It is below freezing and raining now. Therefore, it is below freezing now.” Solution: Letpbe the proposition “It is below freezing now,” and let qbe the proposition “It is raining now.” This argument is of the form p∧q ∴p This argument uses the simplification rule. ◂ EXAMPLE 5 State which rule of inference is used in the argument: If it rains today, then we will not have a barbecue today. If we do not have a barbecue today, then we will have a barbecue tomorrow. Therefore, if it rains today, then we will have abarbecue tomorrow.",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 76
+  },
+  {
+    "name": "Simplification",
+    "symbol": "∧E",
+    "pattern_description": "From p ∧ q, conclude p.",
+    "premises": [
+      "p ∧ q"
+    ],
+    "conclusion": "p",
+    "natural_language": "From p ∧ q, conclude p.",
+    "full_explanation": "76 1 / The Foundations: Logic and Proofs TABLE 1 Rules of Inference. Rule of Inference Tautology Name p p→q ∴q(p∧(p→q))→q Modus ponens ¬qp→q ∴¬p(¬q∧(p→q))→¬p Modus tollens p→q q→r ∴p→r((p→q)∧(q→r))→(p→r) Hypothetical syllogism p∨q ¬p ∴q((p∨q)∧¬p)→q Disjunctive syllogism p ∴p∨qp→(p∨q) Addition p∧q ∴p(p∧q)→p Simplification pq ∴p∧q((p)∧(q))→(p∧q) Conjunction p∨q ¬p∨r ∴q∨r((p∨q)∧(¬p∨r))→(q∨r) Resolution This is an argument that uses the addition rule. ◂ EXAMPLE 4 State which rule of inference is the basis of the following argument: “It is below freezing and raining now. Therefore, it is below freezing now.” Solution: Letpbe the proposition “It is below freezing now,” and let qbe the proposition “It is raining now.” This argument is of the form p∧q ∴p This argument uses the simplification rule. ◂ EXAMPLE 5 State which rule of inference is used in the argument: If it rains today, then we will not have a barbecue today. If we do not have a barbecue today, then we will have a barbecue tomorrow. Therefore, if it rains today, then we will have abarbecue tomorrow.",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 76
+  },
+  {
+    "name": "Conjunction",
+    "symbol": "∧I",
+    "pattern_description": "From p and q, conclude p ∧ q.",
+    "premises": [
+      "p",
+      "q"
+    ],
+    "conclusion": "p ∧ q",
+    "natural_language": "From p and q, conclude p ∧ q.",
+    "full_explanation": "76 1 / The Foundations: Logic and Proofs TABLE 1 Rules of Inference. Rule of Inference Tautology Name p p→q ∴q(p∧(p→q))→q Modus ponens ¬qp→q ∴¬p(¬q∧(p→q))→¬p Modus tollens p→q q→r ∴p→r((p→q)∧(q→r))→(p→r) Hypothetical syllogism p∨q ¬p ∴q((p∨q)∧¬p)→q Disjunctive syllogism p ∴p∨qp→(p∨q) Addition p∧q ∴p(p∧q)→p Simplification pq ∴p∧q((p)∧(q))→(p∧q) Conjunction p∨q ¬p∨r ∴q∨r((p∨q)∧(¬p∨r))→(q∨r) Resolution This is an argument that uses the addition rule. ◂ EXAMPLE 4 State which rule of inference is the basis of the following argument: “It is below freezing and raining now. Therefore, it is below freezing now.” Solution: Letpbe the proposition “It is below freezing now,” and let qbe the proposition “It is raining now.” This argument is of the form p∧q ∴p This argument uses the simplification rule. ◂ EXAMPLE 5 State which rule of inference is used in the argument: If it rains today, then we will not have a barbecue today. If we do not have a barbecue today, then we will have a barbecue tomorrow. Therefore, if it rains today, then we will have abarbecue tomorrow.",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 76
+  },
+  {
+    "name": "Resolution",
+    "symbol": "Res",
+    "pattern_description": "From p ∨ q and ¬p ∨ r, conclude q ∨ r.",
+    "premises": [
+      "p ∨ q",
+      "¬p ∨ r"
+    ],
+    "conclusion": "q ∨ r",
+    "natural_language": "From p ∨ q and ¬p ∨ r, conclude q ∨ r.",
+    "full_explanation": "76 1 / The Foundations: Logic and Proofs TABLE 1 Rules of Inference. Rule of Inference Tautology Name p p→q ∴q(p∧(p→q))→q Modus ponens ¬qp→q ∴¬p(¬q∧(p→q))→¬p Modus tollens p→q q→r ∴p→r((p→q)∧(q→r))→(p→r) Hypothetical syllogism p∨q ¬p ∴q((p∨q)∧¬p)→q Disjunctive syllogism p ∴p∨qp→(p∨q) Addition p∧q ∴p(p∧q)→p Simplification pq ∴p∧q((p)∧(q))→(p∧q) Conjunction p∨q ¬p∨r ∴q∨r((p∨q)∧(¬p∨r))→(q∨r) Resolution This is an argument that uses the addition rule. ◂ EXAMPLE 4 State which rule of inference is the basis of the following argument: “It is below freezing and raining now. Therefore, it is below freezing now.” Solution: Letpbe the proposition “It is below freezing now,” and let qbe the proposition “It is raining now.” This argument is of the form p∧q ∴p This argument uses the simplification rule. ◂ EXAMPLE 5 State which rule of inference is used in the argument: If it rains today, then we will not have a barbecue today. If we do not have a barbecue today, then we will have a barbecue tomorrow. Therefore, if it rains today, then we will have abarbecue tomorrow.",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 76
+  },
+  {
+    "name": "Universal Instantiation",
+    "symbol": "∀E",
+    "pattern_description": "From ∀x P(x), conclude P(c) for a particular element c.",
+    "premises": [
+      "∀x P(x)"
+    ],
+    "conclusion": "P(c)",
+    "natural_language": "Universal instantiation is the rule of inference used to conclude that P(c) is true, where c is a particular member of the domain, given the premise ∀xP(x ).",
+    "full_explanation": "1 Letpandqbe as in Example 10. If the conditional statement p→qis true, and ¬pis true, is it correct to conclude that ¬qis true? In other words, is it correct to assume that you did not learn discrete mathematics if you did not do every problem in the book, assuming that if you do everyproblem in this book, then you will learn discrete mathematics? Solution: It is possible that you learned discrete mathematics even if you did not do every problem in this book. This incorrect argument is of the form p→qand¬pimply¬q, which is an example of the fallacy of denying the hypothesis. ◂ 1.6.7 Rules of Inference for Quantified Statements We have discussed rules of inference for propositions. We will now describe some important rules of inference for statements involving quantifiers. These rules of inference are used exten-sively in mathematical arguments, often without being explicitly mentioned. Universal instantiation is the rule of inference used to conclude that P(c) is true, where c is a particular member of the domain, given the premise ∀xP(x ). Universal instantiation is used when we conclude from the statement “All women are wise” that “Lisa is wise,” where Lisa isa member of the domain of all women. Universal generalization is the rule of inference that states that ∀xP(x ) is true, given the premise that P(c) is true for all elements cin the domain. Universal generalization is used when we show that ∀xP(x ) is true by taking an arbitrary element cfrom the domain and showing that P(c) is true. The element cthat we select must be an arbitrary, and not a specific, element of the domain. That is, when we assert from ∀xP(x ) the existence of an element cin the domain,",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 79
+  },
+  {
+    "name": "Universal Generalization",
+    "symbol": "∀I",
+    "pattern_description": "From P(c) for an arbitrary c, conclude ∀x P(x).",
+    "premises": [
+      "P(c) for an arbitrary c"
+    ],
+    "conclusion": "∀x P(x)",
+    "natural_language": "Universal generalization is the rule of inference that states that ∀xP(x ) is true, given the premise that P(c) is true for all elements cin the domain.",
+    "full_explanation": "will learn discrete mathematics? Solution: It is possible that you learned discrete mathematics even if you did not do every problem in this book. This incorrect argument is of the form p→qand¬pimply¬q, which is an example of the fallacy of denying the hypothesis. ◂ 1.6.7 Rules of Inference for Quantified Statements We have discussed rules of inference for propositions. We will now describe some important rules of inference for statements involving quantifiers. These rules of inference are used exten-sively in mathematical arguments, often without being explicitly mentioned. Universal instantiation is the rule of inference used to conclude that P(c) is true, where c is a particular member of the domain, given the premise ∀xP(x ). Universal instantiation is used when we conclude from the statement “All women are wise” that “Lisa is wise,” where Lisa isa member of the domain of all women. Universal generalization is the rule of inference that states that ∀xP(x ) is true, given the premise that P(c) is true for all elements cin the domain. Universal generalization is used when we show that ∀xP(x ) is true by taking an arbitrary element cfrom the domain and showing that P(c) is true. The element cthat we select must be an arbitrary, and not a specific, element of the domain. That is, when we assert from ∀xP(x ) the existence of an element cin the domain,",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 79
+  },
+  {
+    "name": "Existential Instantiation",
+    "symbol": "∃E",
+    "pattern_description": "From ∃x P(x), conclude P(c) for some element c.",
+    "premises": [
+      "∃x P(x)"
+    ],
+    "conclusion": "P(c) for some element c",
+    "natural_language": "Existential instantiation is the rule that allows us to conclude that there is an element cin the domain for which P(c)i st r u ei fw ek n o wt h a t∃xP(x ) is true.",
+    "full_explanation": "80 1 / The Foundations: Logic and Proofs TABLE 2 Rules of Inference for Quantified Statements. Rule of Inference Name ∀xP(x ) ∴P(c)Universal instantiation P(c) for an arbitrary c ∴∀xP(x )Universal generalization ∃xP(x ) ∴P(c) for some element cExistential instantiation P(c) for some element c ∴∃xP(x )Existential generalization we have no control over cand cannot make any other assumptions about cother than it comes from the domain. Universal generalization is used implicitly in many proofs in mathematics and is seldom mentioned explicitly. However, the error of adding unwarranted assumptions aboutthe arbitrary element cwhen universal generalization is used is all too common in incorrect reasoning. Existential instantiation is the rule that allows us to conclude that there is an element cin the domain for which P(c)i st r u ei fw ek n o wt h a t∃xP(x ) is true. We cannot select an arbitrary value of chere, but rather it must be a cfor which P(c) is true. Usually we have no knowledge of what cis, only that it exists. Because it exists, we may give it a name (c) and continue our argument. Existential generalization is the rule of",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 80
+  },
+  {
+    "name": "Existential Generalization",
+    "symbol": "∃I",
+    "pattern_description": "From P(c) for some element c, conclude ∃x P(x).",
+    "premises": [
+      "P(c) for some element c"
+    ],
+    "conclusion": "∃x P(x)",
+    "natural_language": "Existential generalization is the rule of inference that is used to conclude that ∃xP(x )i s true when a particular element cwith P(c) true is known.",
+    "full_explanation": "80 1 / The Foundations: Logic and Proofs TABLE 2 Rules of Inference for Quantified Statements. Rule of Inference Name ∀xP(x ) ∴P(c)Universal instantiation P(c) for an arbitrary c ∴∀xP(x )Universal generalization ∃xP(x ) ∴P(c) for some element cExistential instantiation P(c) for some element c ∴∃xP(x )Existential generalization we have no control over cand cannot make any other assumptions about cother than it comes from the domain. Universal generalization is used implicitly in many proofs in mathematics and is seldom mentioned explicitly. However, the error of adding unwarranted assumptions aboutthe arbitrary element cwhen universal generalization is used is all too common in incorrect reasoning. Existential instantiation is the rule that allows us to conclude that there is an element cin the domain for which P(c)i st r u ei fw ek n o wt h a t∃xP(x ) is true. We cannot select an arbitrary value of chere, but rather it must be a cfor which P(c) is true. Usually we have no knowledge of what cis, only that it exists. Because it exists, we may give it a name (c) and continue our argument. Existential generalization is the rule of inference that is used to conclude that ∃xP(x )i s true w",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 80
+  },
+  {
+    "name": "Universal Modus Ponens",
+    "symbol": "UMP",
+    "pattern_description": "From ∀x(P(x) → Q(x)) and P(a), conclude Q(a).",
+    "premises": [
+      "∀x(P(x) → Q(x))",
+      "P(a)"
+    ],
+    "conclusion": "Q(a)",
+    "natural_language": "Because universal instantia-tion and modus ponens are used so often together, this combination of rules is sometimes calleduniversal modus ponens .",
+    "full_explanation": "Reason 1.∃x(C(x)∧¬B(x)) Premise 2.C(a)∧¬B(a) Existential instantiation from (1) 3.C(a) Simplification from (2) 4.∀x(C(x)→P(x)) Premise 5.C(a)→P(a) Universal instantiation from (4) 6.P(a) Modus ponens from (3) and (5) 7.¬B(a) Simplification from (2) 8.P(a)∧¬B(a) Conjunction from (6) and (7) 9.∃x(P(x)∧¬B(x)) Existential generalization from (8) ◂ 1.6.8 Combining Rules of Inference for Propositions and Quantified Statements We have developed rules of inference both for propositions and for quantified statements. Note that in our arguments in Examples 12 and 13 we used both universal instantiation, a rule of in-ference for quantified statements, and modus ponens, a rule of inference for propositional logic.We will often need to use this combination of rules of inference. Because universal instantia-tion and modus ponens are used so often together, this combination of rules is sometimes calleduniversal modus ponens . This rule tells us that if ∀x(P(x)→Q(x)) is true, and if P(a)i st r u e for a particular element ain the domain of the universal quantifier, then Q(a) must also be true. To see this, note that by universal instantiation, P(a)→Q(a) is true. Then, by modus ponens, Q(a) must also be true. We can describe universal modus ponens as follows: ∀x(P(x)→Q(x)) P(a), where ais a particular element in the domain ∴Q(a) Universal modus ponens is commonly used in mathematical arguments. This is illustrated in Example 14. EXAMPLE 14 Assume that “For all positive integers n,i fn is greater than 4, then n2is less than 2n” is true. Use universal modus ponens to show that 1002<2100. Solution: LetP(n) denote “n >4” and Q(n) denote “n2<2n.” The statement “For all positive integers n,i fn is greater than 4, then n2is less than 2n” can be represented by ∀n(P(n) →Q(n)), where the domain c",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 81
+  },
+  {
+    "name": "Universal Modus Tollens",
+    "symbol": "UMT",
+    "pattern_description": "From ∀x(P(x) → Q(x)) and ¬Q(a), conclude ¬P(a).",
+    "premises": [
+      "∀x(P(x) → Q(x))",
+      "¬Q(a)"
+    ],
+    "conclusion": "¬P(a)",
+    "natural_language": "The conclusion is ∃x(P(x)∧¬B(x)).",
+    "full_explanation": "ersal modus ponens as follows: ∀x(P(x)→Q(x)) P(a), where ais a particular element in the domain ∴Q(a) Universal modus ponens is commonly used in mathematical arguments. This is illustrated in Example 14. EXAMPLE 14 Assume that “For all positive integers n,i fn is greater than 4, then n2is less than 2n” is true. Use universal modus ponens to show that 1002<2100. Solution: LetP(n) denote “n >4” and Q(n) denote “n2<2n.” The statement “For all positive integers n,i fn is greater than 4, then n2is less than 2n” can be represented by ∀n(P(n) →Q(n)), where the domain consists of all positive integers. We are assuming that ∀n(P(n) →Q(n)) is true. Note that P(100) is true because 100 >4. It follows by universal modus ponens that Q(100) is true, namely, that 1002<2100. ◂ Another useful combination of a rule of inference from propositional logic and a rule of inference for quantified statements is universal modus tollens. Universal modus tollens combines universal instantiation and modus tollens and can be expressed in the following way: ∀x(P(x)→Q(x)) ¬Q(a), where ais a particular element in the domain ∴¬P(a)",
+    "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
+    "page": 81
+  }
+]

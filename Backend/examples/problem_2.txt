@@ -1,0 +1,2 @@
+Premises: P ∧ Q
+Goal: P
