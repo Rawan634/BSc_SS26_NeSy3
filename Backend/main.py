@@ -8,7 +8,7 @@ from validator.rule_validator import print_validation_report, save_json_file, va
 
 def main() -> None:
 	backend_dir = Path(__file__).resolve().parent
-	problem_path = backend_dir / "examples" / "problem_4.txt"
+	problem_path = backend_dir / "examples" / "problem_1.txt"
 	template_path = backend_dir / "tutor_agent" / "prompt_template.txt"
 
 	agent = TutorAgent(

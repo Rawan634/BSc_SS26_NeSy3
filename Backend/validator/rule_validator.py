@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -114,7 +115,178 @@ def _extract_known_lines(all_steps: Iterable[Dict[str, Any]]) -> Tuple[set[int],
     return known_lines, None
 
 
-def validate_step(step: Dict[str, Any], all_steps: List[Dict[str, Any]]) -> Tuple[bool, str]:
+def _to_int(value: Any) -> Optional[int]:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.strip().isdigit():
+        return int(value.strip())
+    return None
+
+
+def _normalize_formula(formula: Any) -> str:
+    if formula is None:
+        return ""
+    return re.sub(r"\s+", "", str(formula))
+
+
+def _is_implication(formula: Any) -> bool:
+    return "→" in _normalize_formula(formula)
+
+
+def _negate_formula(formula: str) -> str:
+    return f"¬{formula}"
+
+
+def _is_contradiction_formula(formula: Any, base_formula: Optional[str] = None) -> bool:
+    normalized = _normalize_formula(formula)
+    if not normalized:
+        return False
+
+    if "⊥" in normalized:
+        return True
+
+    if base_formula:
+        base = _normalize_formula(base_formula)
+        neg_base = _negate_formula(base)
+        return base in normalized and neg_base in normalized
+
+    if "∧" in normalized:
+        parts = [part for part in normalized.split("∧") if part]
+        seen = set(parts)
+        for part in parts:
+            if part.startswith("¬") and part[1:] in seen:
+                return True
+            if f"¬{part}" in seen:
+                return True
+
+    return False
+
+
+def _is_prefix(prefix: Tuple[int, ...], full: Tuple[int, ...]) -> bool:
+    return len(prefix) <= len(full) and full[: len(prefix)] == prefix
+
+
+def _validate_references_visible(
+    references: List[int],
+    current_context: Tuple[int, ...],
+    line_contexts: Dict[int, Tuple[int, ...]],
+) -> Optional[str]:
+    for reference in references:
+        referenced_context = line_contexts.get(reference)
+        if referenced_context is None:
+            return f"Referenced line {reference} does not exist in previous steps."
+        if not _is_prefix(referenced_context, current_context):
+            return f"Cannot reference line {reference} from current scope"
+    return None
+
+
+def _validate_implication_introduction(
+    step: Dict[str, Any],
+    references: List[int],
+    line_steps: Dict[int, Dict[str, Any]],
+    line_scopes: Dict[int, int],
+    just_closed_assumptions: List[int],
+    current_scope: int,
+) -> Tuple[bool, str]:
+    if len(references) != 2:
+        return False, "Rule '→I' expects an assumption line and a conclusion line."
+
+    assumption_line, conclusion_line = references
+    assumption_step = line_steps.get(assumption_line)
+    conclusion_step = line_steps.get(conclusion_line)
+
+    if assumption_step is None or conclusion_step is None:
+        return False, "Rule '→I' references unknown line(s)."
+
+    if str(assumption_step.get("rule", "")).strip().lower() != "assumption":
+        return False, "Rule '→I' must reference an assumption line as its first reference."
+
+    if not _is_implication(step.get("formula", "")):
+        return False, "Rule '→I' conclusion must be an implication."
+
+    assumption_scope = line_scopes.get(assumption_line)
+    conclusion_scope = line_scopes.get(conclusion_line)
+    if assumption_scope is None or conclusion_scope is None:
+        return False, "Rule '→I' references line(s) without scope metadata."
+
+    if assumption_scope != current_scope + 1 or conclusion_scope != assumption_scope:
+        return False, "Rule '→I' must reference lines from the immediately inner subproof."
+
+    if assumption_line not in just_closed_assumptions:
+        return False, "Assumption not properly discharged"
+
+    return True, ""
+
+
+def _validate_negation_introduction(
+    references: List[int],
+    line_steps: Dict[int, Dict[str, Any]],
+    line_scopes: Dict[int, int],
+    just_closed_assumptions: List[int],
+    current_scope: int,
+) -> Tuple[bool, str]:
+    if len(references) != 2:
+        return False, "Rule '¬I' expects an assumption line and a contradiction line."
+
+    assumption_line, contradiction_line = references
+    assumption_step = line_steps.get(assumption_line)
+    contradiction_step = line_steps.get(contradiction_line)
+
+    if assumption_step is None or contradiction_step is None:
+        return False, "Rule '¬I' references unknown line(s)."
+
+    if str(assumption_step.get("rule", "")).strip().lower() != "assumption":
+        return False, "Rule '¬I' must reference an assumption line as its first reference."
+
+    assumption_scope = line_scopes.get(assumption_line)
+    contradiction_scope = line_scopes.get(contradiction_line)
+    if assumption_scope is None or contradiction_scope is None:
+        return False, "Rule '¬I' references line(s) without scope metadata."
+
+    if assumption_scope != current_scope + 1 or contradiction_scope != assumption_scope:
+        return False, "Rule '¬I' must reference lines from the immediately inner subproof."
+
+    if assumption_line not in just_closed_assumptions:
+        return False, "Assumption not properly discharged"
+
+    assumption_formula = str(assumption_step.get("formula", ""))
+    contradiction_formula = contradiction_step.get("formula", "")
+    if not _is_contradiction_formula(contradiction_formula, assumption_formula):
+        return False, "Contradiction not found for ¬I"
+
+    return True, ""
+
+
+def _validate_falsum_elimination(
+    references: List[int],
+    line_steps: Dict[int, Dict[str, Any]],
+) -> Tuple[bool, str]:
+    if len(references) != 1:
+        return False, "Rule '⊥E' expects one contradiction reference line."
+
+    contradiction_step = line_steps.get(references[0])
+    if contradiction_step is None:
+        return False, "Rule '⊥E' references an unknown line."
+
+    if not _is_contradiction_formula(contradiction_step.get("formula", "")):
+        return False, "Rule '⊥E' must reference a contradiction line."
+
+    return True, ""
+
+
+def validate_step(
+    step: Dict[str, Any],
+    all_steps: List[Dict[str, Any]],
+    *,
+    line_contexts: Optional[Dict[int, Tuple[int, ...]]] = None,
+    line_scopes: Optional[Dict[int, int]] = None,
+    line_steps: Optional[Dict[int, Dict[str, Any]]] = None,
+    current_context: Optional[Tuple[int, ...]] = None,
+    current_scope: Optional[int] = None,
+    just_closed_assumptions: Optional[List[int]] = None,
+) -> Tuple[bool, str]:
     """Validate one proof step against rule metadata and available prior lines.
 
     Args:
@@ -153,6 +325,11 @@ def validate_step(step: Dict[str, Any], all_steps: List[Dict[str, Any]]) -> Tupl
         if reference not in known_lines:
             return False, f"Referenced line {reference} does not exist in previous steps."
 
+    if rule not in {"→I", "¬I"} and line_contexts is not None and current_context is not None:
+        visibility_error = _validate_references_visible(references or [], current_context, line_contexts)
+        if visibility_error:
+            return False, visibility_error
+
     rule_definition = rule_lookup[rule]
     premises = rule_definition.get("premises", [])
     if not isinstance(premises, list):
@@ -166,6 +343,30 @@ def validate_step(step: Dict[str, Any], all_steps: List[Dict[str, Any]]) -> Tupl
             False,
             f"Rule '{rule}' expects {expected_premise_count} reference(s), got {actual_reference_count}.",
         )
+
+    if rule in {"→I", "¬I", "⊥E"}:
+        if line_scopes is None or line_steps is None or current_scope is None:
+            return False, f"Internal validator state missing for rule '{rule}'."
+
+        closed_assumptions = just_closed_assumptions or []
+        if rule == "→I":
+            return _validate_implication_introduction(
+                step,
+                references or [],
+                line_steps,
+                line_scopes,
+                closed_assumptions,
+                current_scope,
+            )
+        if rule == "¬I":
+            return _validate_negation_introduction(
+                references or [],
+                line_steps,
+                line_scopes,
+                closed_assumptions,
+                current_scope,
+            )
+        return _validate_falsum_elimination(references or [], line_steps)
 
     return True, ""
 
@@ -191,14 +392,82 @@ def validate_proof(proof_json: Dict[str, Any]) -> Dict[str, Any]:
 
     proof_with_validation = copy.deepcopy(proof_json)
     validated_steps: List[Dict[str, Any]] = []
+    scope_stack: List[int] = []
+    line_scopes: Dict[int, int] = {}
+    line_contexts: Dict[int, Tuple[int, ...]] = {}
+    line_steps: Dict[int, Dict[str, Any]] = {}
+
+    def _normalize_scope(step_obj: Dict[str, Any]) -> Optional[int]:
+        return _to_int(step_obj.get("scope_level", 0))
 
     for step in proof_with_validation["steps"]:
         if not isinstance(step, dict):
             raise ValueError("Each step in 'steps' must be a JSON object.")
 
-        is_valid, error_message = validate_step(step, validated_steps)
+        line_number = _to_int(step.get("line"))
+        if line_number is None:
+            is_valid, error_message = False, "Each step must have a numeric 'line' value."
+            step["validation"] = {"valid": is_valid, "error": error_message}
+            validated_steps.append(step)
+            continue
+
+        scope_level = _normalize_scope(step)
+        if scope_level is None or scope_level < 0:
+            is_valid, error_message = False, "Each step must have a nonnegative numeric 'scope_level'."
+            step["validation"] = {"valid": is_valid, "error": error_message}
+            validated_steps.append(step)
+            continue
+
+        current_scope = len(scope_stack)
+        just_closed_assumptions: List[int] = []
+
+        if scope_level > current_scope + 1:
+            is_valid, error_message = False, "Invalid scope jump: scope_level can increase by at most 1."
+        else:
+            while len(scope_stack) > scope_level:
+                just_closed_assumptions.append(scope_stack.pop())
+
+            current_scope = len(scope_stack)
+            rule_name = str(step.get("rule", "")).strip().lower()
+
+            if scope_level == current_scope + 1 and rule_name != "assumption":
+                is_valid, error_message = False, "Entering a deeper scope requires an assumption step."
+            elif scope_level == current_scope and just_closed_assumptions and rule_name not in {"→i", "¬i"}:
+                is_valid, error_message = False, "Assumption not properly discharged"
+            else:
+                current_context = tuple(scope_stack)
+                is_valid, error_message = validate_step(
+                    step,
+                    validated_steps,
+                    line_contexts=line_contexts,
+                    line_scopes=line_scopes,
+                    line_steps=line_steps,
+                    current_context=current_context,
+                    current_scope=current_scope,
+                    just_closed_assumptions=just_closed_assumptions,
+                )
+
+        if scope_level == len(scope_stack) + 1 and str(step.get("rule", "")).strip().lower() == "assumption":
+            line_contexts[line_number] = tuple(scope_stack + [line_number])
+            line_scopes[line_number] = scope_level
+            line_steps[line_number] = step
+            scope_stack.append(line_number)
+        else:
+            line_contexts[line_number] = tuple(scope_stack)
+            line_scopes[line_number] = scope_level
+            line_steps[line_number] = step
+
         step["validation"] = {"valid": is_valid, "error": error_message}
         validated_steps.append(step)
+
+    if scope_stack:
+        assumption_line = scope_stack[-1]
+        for step in reversed(proof_with_validation["steps"]):
+            validation = step.get("validation")
+            if isinstance(validation, dict):
+                validation["valid"] = False
+                validation["error"] = "Assumption not properly discharged"
+                break
 
     return proof_with_validation
 

@@ -2,11 +2,11 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P → Q",
+      "formula": "P → (Q → R)",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P → Q",
+      "fitch_notation": "1. P → (Q → R)",
       "validation": {
         "valid": true,
         "error": ""
@@ -14,11 +14,11 @@
     },
     {
       "line": 2,
-      "formula": "¬Q",
-      "rule": "premise",
+      "formula": "(P ∧ Q) → R",
+      "rule": "assumption",
       "references": [],
-      "scope_level": 0,
-      "fitch_notation": "2. ¬Q",
+      "scope_level": 1,
+      "fitch_notation": " | 2. (P ∧ Q) → R",
       "validation": {
         "valid": true,
         "error": ""
@@ -26,11 +26,11 @@
     },
     {
       "line": 3,
-      "formula": "P",
+      "formula": "P ∧ Q",
       "rule": "assumption",
       "references": [],
-      "scope_level": 1,
-      "fitch_notation": "  | 3. P",
+      "scope_level": 2,
+      "fitch_notation": "  | 3. P ∧ Q",
       "validation": {
         "valid": true,
         "error": ""
@@ -39,10 +39,12 @@
     {
       "line": 4,
       "formula": "Q",
-      "rule": "assumption",
-      "references": [],
+      "rule": "∧E",
+      "references": [
+        3
+      ],
       "scope_level": 2,
-      "fitch_notation": "  |  | 4. Q",
+      "fitch_notation": "  | 4. Q",
       "validation": {
         "valid": true,
         "error": ""
@@ -50,17 +52,47 @@
     },
     {
       "line": 5,
-      "formula": "¬P",
-      "rule": "→E",
+      "formula": "P",
+      "rule": "∧E",
       "references": [
-        1,
         3
       ],
       "scope_level": 2,
-      "fitch_notation": "  | 5. ¬P",
+      "fitch_notation": "  | 5. P",
       "validation": {
         "valid": true,
         "error": ""
+      }
+    },
+    {
+      "line": 6,
+      "formula": "Q → R",
+      "rule": "→E",
+      "references": [
+        1,
+        5
+      ],
+      "scope_level": 1,
+      "fitch_notation": " | 6. Q → R",
+      "validation": {
+        "valid": false,
+        "error": "Assumption not properly discharged"
+      }
+    },
+    {
+      "line": 7,
+      "formula": "R",
+      "rule": "→E",
+      "references": [
+        2,
+        4,
+        6
+      ],
+      "scope_level": 0,
+      "fitch_notation": "7. R",
+      "validation": {
+        "valid": false,
+        "error": "Assumption not properly discharged"
       }
     }
   ]

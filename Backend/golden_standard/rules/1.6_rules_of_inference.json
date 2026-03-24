@@ -188,5 +188,46 @@
     "full_explanation": "ersal modus ponens as follows: ∀x(P(x)→Q(x)) P(a), where ais a particular element in the domain ∴Q(a) Universal modus ponens is commonly used in mathematical arguments. This is illustrated in Example 14. EXAMPLE 14 Assume that “For all positive integers n,i fn is greater than 4, then n2is less than 2n” is true. Use universal modus ponens to show that 1002<2100. Solution: LetP(n) denote “n >4” and Q(n) denote “n2<2n.” The statement “For all positive integers n,i fn is greater than 4, then n2is less than 2n” can be represented by ∀n(P(n) →Q(n)), where the domain consists of all positive integers. We are assuming that ∀n(P(n) →Q(n)) is true. Note that P(100) is true because 100 >4. It follows by universal modus ponens that Q(100) is true, namely, that 1002<2100. ◂ Another useful combination of a rule of inference from propositional logic and a rule of inference for quantified statements is universal modus tollens. Universal modus tollens combines universal instantiation and modus tollens and can be expressed in the following way: ∀x(P(x)→Q(x)) ¬Q(a), where ais a particular element in the domain ∴¬P(a)",
     "source_pdf": "Rosen_1.6_Rules_of_Inference.pdf",
     "page": 81
+  },
+  {
+    "name": "Implication Introduction",
+    "symbol": "→I",
+    "pattern_description": "Assume p and derive q; then conclude p → q (conditional proof).",
+    "premises": [
+      "Assume p",
+      "derive q"
+    ],
+    "conclusion": "p → q",
+    "natural_language": "To prove a conditional p → q, begin by assuming p and derive q; this establishes the implication.",
+    "full_explanation": "Section 1.7 explains that a direct proof of a conditional statement p→q starts by assuming p is true and then, using axioms, definitions, previously proved theorems, and rules of inference, derives q. This prevents the only falsifying case (p true and q false), so p→q is established. This is the conditional-proof pattern used in implication introduction.",
+    "source_pdf": "Rosen_1.7_Introduction_to_Proofs.pdf",
+    "page": 86
+  },
+  {
+    "name": "Negation Introduction",
+    "symbol": "¬I",
+    "pattern_description": "Assume p and derive a contradiction (⊥); then conclude ¬p (proof by contradiction).",
+    "premises": [
+      "Assume p",
+      "derive contradiction (⊥)"
+    ],
+    "conclusion": "¬p",
+    "natural_language": "If assuming p leads to contradiction, p must be false; therefore ¬p.",
+    "full_explanation": "Section 1.7 presents proof by contradiction as showing that an assumption leads to an impossibility. If assuming p yields a contradiction (such as r ∧ ¬r), the assumption cannot hold, so ¬p follows. Rosen uses this structure repeatedly when deriving a contradiction from an assumption and then rejecting that assumption.",
+    "source_pdf": "Rosen_1.7_Introduction_to_Proofs.pdf",
+    "page": 90
+  },
+  {
+    "name": "Falsum Elimination",
+    "symbol": "⊥E",
+    "pattern_description": "From contradiction (⊥), infer any formula (ex falso quodlibet).",
+    "premises": [
+      "⊥"
+    ],
+    "conclusion": "any formula r",
+    "natural_language": "A contradiction marks an impossible state; once ⊥ is reached, any target statement is derivable in classical reasoning.",
+    "full_explanation": "Section 1.7 formalizes contradiction via expressions like r ∧ ¬r and uses contradiction to force rejection of assumptions. In this framework, once a contradiction is obtained, the current assumption context is inconsistent, which licenses deriving any formula in classical logic (the ex falso principle), typically used as a subproof-closing step.",
+    "source_pdf": "Rosen_1.7_Introduction_to_Proofs.pdf",
+    "page": 90
   }
 ]

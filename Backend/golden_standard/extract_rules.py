@@ -147,6 +147,90 @@ QUANTIFIED_RULES: tuple[RuleTemplate, ...] = (
 )
 
 
+ASSUMPTION_BASED_RULES: tuple[RuleTemplate, ...] = (
+	RuleTemplate(
+		name="Implication Introduction",
+		symbol="→I",
+		premises=["Assume p", "derive q"],
+		conclusion="p → q",
+		pattern_description="Assume p and derive q; then conclude p → q (conditional proof).",
+		keywords=(
+			"direct proof of a conditional statement p→q",
+			"first step is the assumption that p is true",
+		),
+	),
+	RuleTemplate(
+		name="Negation Introduction",
+		symbol="¬I",
+		premises=["Assume p", "derive contradiction (⊥)"],
+		conclusion="¬p",
+		pattern_description="Assume p and derive a contradiction; then conclude ¬p (proof by contradiction).",
+		keywords=(
+			"proofs by contradiction",
+			"assuming that ¬p is true leads to a contradiction",
+		),
+	),
+	RuleTemplate(
+		name="Falsum Elimination",
+		symbol="⊥E",
+		premises=["⊥"],
+		conclusion="any formula r",
+		pattern_description="From a contradiction (⊥), infer any formula (ex falso quodlibet).",
+		keywords=(
+			"r∧¬r",
+			"is a contradiction whenever r is a proposition",
+			"both p and ¬p are true, we have a contradiction",
+		),
+	),
+)
+
+
+ASSUMPTION_RULE_FALLBACKS: dict[str, dict[str, object]] = {
+	"Implication Introduction": {
+		"name": "Implication Introduction",
+		"symbol": "→I",
+		"pattern_description": "Assume p and derive q; then conclude p → q (conditional proof).",
+		"premises": ["Assume p", "derive q"],
+		"conclusion": "p → q",
+		"natural_language": "To prove p → q, assume p and derive q.",
+		"full_explanation": (
+			"Section 1.7 presents direct proof of conditional statements as starting with the assumption that "
+			"p is true, then deriving q using definitions, axioms, and prior results; this establishes p→q."
+		),
+		"source_pdf": "Rosen_1.7_Introduction_to_Proofs.pdf",
+		"page": 86,
+	},
+	"Negation Introduction": {
+		"name": "Negation Introduction",
+		"symbol": "¬I",
+		"pattern_description": "Assume p and derive a contradiction; then conclude ¬p (proof by contradiction).",
+		"premises": ["Assume p", "derive contradiction (⊥)"],
+		"conclusion": "¬p",
+		"natural_language": "If assuming p leads to contradiction, conclude ¬p.",
+		"full_explanation": (
+			"Section 1.7 explains proof by contradiction: if an assumption implies a contradiction, that "
+			"assumption is false, yielding its negation."
+		),
+		"source_pdf": "Rosen_1.7_Introduction_to_Proofs.pdf",
+		"page": 90,
+	},
+	"Falsum Elimination": {
+		"name": "Falsum Elimination",
+		"symbol": "⊥E",
+		"pattern_description": "From contradiction (⊥), infer any formula (ex falso quodlibet).",
+		"premises": ["⊥"],
+		"conclusion": "any formula r",
+		"natural_language": "Once contradiction is derived, any formula follows in classical logic.",
+		"full_explanation": (
+			"Section 1.7 formalizes contradiction via forms such as r ∧ ¬r and repeatedly uses contradiction "
+			"to close assumptions; this corresponds to the classical ex falso rule."
+		),
+		"source_pdf": "Rosen_1.7_Introduction_to_Proofs.pdf",
+		"page": 90,
+	},
+}
+
+
 LIGATURES = {
 	"\ufb00": "ff",
 	"\ufb01": "fi",
@@ -311,12 +395,22 @@ def build_rule_record(
 
 
 def parse_rules_for_pdf(pdf_path: Path, pages: list[dict[str, object]]) -> list[dict[str, object]]:
-	if "rules_of_inference" not in pdf_path.stem.lower():
+	pdf_stem = pdf_path.stem.lower()
+	if not any(
+		marker in pdf_stem
+		for marker in ("rules_of_inference", "introduction_to_proofs", "proof_methods_strategy")
+	):
 		return []
 
 	rules: list[dict[str, object]] = []
 	seen_names: set[str] = set()
-	all_templates = SECTION_16_RULES + QUANTIFIED_RULES
+	all_templates: tuple[RuleTemplate, ...] = tuple()
+
+	if "rules_of_inference" in pdf_stem:
+		all_templates += SECTION_16_RULES + QUANTIFIED_RULES
+
+	if "introduction_to_proofs" in pdf_stem or "proof_methods_strategy" in pdf_stem:
+		all_templates += ASSUMPTION_BASED_RULES
 
 	for template in all_templates:
 		record = build_rule_record(template, pages, pdf_path.name)
@@ -329,6 +423,47 @@ def parse_rules_for_pdf(pdf_path: Path, pages: list[dict[str, object]]) -> list[
 
 def write_rules(rules: list[dict[str, object]], output_path: Path) -> None:
 	output_path.write_text(json.dumps(rules, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def merge_assumption_rules_into_section_16() -> int:
+	target_path = RULES_DIR / "1.6_rules_of_inference.json"
+	if not target_path.exists():
+		return 0
+
+	section_16_rules = json.loads(target_path.read_text(encoding="utf-8"))
+	if not isinstance(section_16_rules, list):
+		return 0
+
+	source_paths = (
+		RULES_DIR / "1.7_introduction_to_proofs.json",
+		RULES_DIR / "1.8_proof_methods_strategy.json",
+	)
+	assumption_source_records: dict[str, dict[str, object]] = {}
+	for source_path in source_paths:
+		if not source_path.exists():
+			continue
+		source_records = json.loads(source_path.read_text(encoding="utf-8"))
+		if not isinstance(source_records, list):
+			continue
+		for record in source_records:
+			if not isinstance(record, dict):
+				continue
+			name = str(record.get("name", ""))
+			if name in ASSUMPTION_RULE_FALLBACKS:
+				assumption_source_records[name] = record
+
+	existing_names = {str(rule.get("name", "")) for rule in section_16_rules if isinstance(rule, dict)}
+	added_count = 0
+	for rule_name in ASSUMPTION_RULE_FALLBACKS:
+		if rule_name in existing_names:
+			continue
+		record = assumption_source_records.get(rule_name, ASSUMPTION_RULE_FALLBACKS[rule_name])
+		section_16_rules.append(record)
+		existing_names.add(rule_name)
+		added_count += 1
+
+	write_rules(section_16_rules, target_path)
+	return added_count
 
 
 def process_pdf(pdf_path: Path) -> dict[str, object]:
@@ -360,10 +495,14 @@ def main() -> None:
 		return
 
 	results = [process_pdf(pdf_path) for pdf_path in pdf_paths]
+	merged_count = merge_assumption_rules_into_section_16()
 	failed = [result for result in results if result["error"]]
 
 	total_rules = sum(int(result["rules"]) for result in results)
-	print(f"Processed {len(results)} PDFs. Extracted {total_rules} rules in total.")
+	print(
+		f"Processed {len(results)} PDFs. Extracted {total_rules} rules in total. "
+		f"Merged {merged_count} assumption-based rules into 1.6_rules_of_inference.json."
+	)
 	if failed:
 		print("Some PDFs could not be processed:")
 		for result in failed:
