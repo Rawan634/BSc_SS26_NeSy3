@@ -229,5 +229,18 @@
     "full_explanation": "Section 1.7 formalizes contradiction via expressions like r ∧ ¬r and uses contradiction to force rejection of assumptions. In this framework, once a contradiction is obtained, the current assumption context is inconsistent, which licenses deriving any formula in classical logic (the ex falso principle), typically used as a subproof-closing step.",
     "source_pdf": "Rosen_1.7_Introduction_to_Proofs.pdf",
     "page": 90
+  },
+  {
+    "name": "Negation Elimination",
+    "symbol": "¬E",
+    "pattern_description": "From ¬¬p, conclude p.",
+    "premises": [
+      "¬¬p"
+    ],
+    "conclusion": "p",
+    "natural_language": "Eliminating a double negation yields the original statement.",
+    "full_explanation": "Rosen states the double negation law as ¬(¬p) ≡ p in the logical equivalences table. As an inference step in proofs, this is used as Negation Elimination: if ¬¬p is established, then p follows.",
+    "source_pdf": "Rosen_1.3_Propositional_Equivalences.pdf",
+    "page": 29
   }
 ]

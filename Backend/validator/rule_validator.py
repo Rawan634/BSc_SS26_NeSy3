@@ -507,6 +507,81 @@ def print_validation_report(proof: Dict[str, Any]) -> None:
         print("\nNo validation errors found.")
 
 
+def _classify_validation_error(rule: str, error_text: str) -> str:
+    """Classify a validation error as phase3 or phase4.
+
+    Phase 3 covers basic rule validation (rule names, references, premise counts).
+    Phase 4 covers scope tracking, subproof discipline, and assumption discharge.
+    """
+    lowered = (error_text or "").lower()
+    rule_lower = (rule or "").strip().lower()
+
+    phase4_markers = [
+        "invalid scope jump",
+        "entering a deeper scope requires an assumption",
+        "assumption not properly discharged",
+        "from current scope",
+        "immediately inner subproof",
+        "without scope metadata",
+        "contradiction not found",
+    ]
+
+    if any(marker in lowered for marker in phase4_markers):
+        return "phase4"
+
+    if rule_lower in {"→i", "¬i", "⊥e"}:
+        # These rules are introduced with subproof/assumption management in Phase 4.
+        return "phase4"
+
+    return "phase3"
+
+
+def summarize_validation_phases(proof: Dict[str, Any]) -> Dict[str, Any]:
+    """Summarize validation outcomes split by Phase 3 and Phase 4.
+
+    Args:
+        proof: Proof object containing validated steps.
+
+    Returns:
+        Dictionary with phase pass flags and grouped error lists.
+    """
+    steps = proof.get("steps", []) if isinstance(proof, dict) else []
+
+    phase3_errors: List[str] = []
+    phase4_errors: List[str] = []
+
+    for idx, step in enumerate(steps, start=1):
+        if not isinstance(step, dict):
+            phase3_errors.append(f"Line {idx}: Step is not a JSON object.")
+            continue
+
+        validation = step.get("validation", {})
+        if not isinstance(validation, dict):
+            phase3_errors.append(f"Line {step.get('line', idx)}: Missing validation metadata.")
+            continue
+
+        if bool(validation.get("valid")):
+            continue
+
+        line_value = step.get("line", idx)
+        rule_value = str(step.get("rule", ""))
+        error_text = str(validation.get("error", "Unknown validation error"))
+        classified = _classify_validation_error(rule_value, error_text)
+        entry = f"Line {line_value}: {error_text}"
+
+        if classified == "phase4":
+            phase4_errors.append(entry)
+        else:
+            phase3_errors.append(entry)
+
+    return {
+        "phase3_passed": len(phase3_errors) == 0,
+        "phase4_passed": len(phase4_errors) == 0,
+        "phase3_errors": phase3_errors,
+        "phase4_errors": phase4_errors,
+    }
+
+
 def load_json_file(file_path: Path) -> Dict[str, Any]:
     """Load and return a JSON object from disk with robust error handling."""
     if not file_path.exists():

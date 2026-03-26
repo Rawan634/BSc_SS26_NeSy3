@@ -2,98 +2,84 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P → (Q → R)",
+      "formula": "P → Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P → (Q → R)",
+      "fitch_notation": "1. P → Q",
       "validation": {
         "valid": true,
         "error": ""
-      }
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Skipped because Phase 3 or Phase 4 validation failed."
     },
     {
       "line": 2,
-      "formula": "(P ∧ Q) → R",
-      "rule": "assumption",
+      "formula": "P",
+      "rule": "premise",
       "references": [],
-      "scope_level": 1,
-      "fitch_notation": " | 2. (P ∧ Q) → R",
+      "scope_level": 0,
+      "fitch_notation": "2. P",
       "validation": {
         "valid": true,
         "error": ""
-      }
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Skipped because Phase 3 or Phase 4 validation failed."
     },
     {
       "line": 3,
-      "formula": "P ∧ Q",
+      "formula": "¬Q",
       "rule": "assumption",
       "references": [],
-      "scope_level": 2,
-      "fitch_notation": "  | 3. P ∧ Q",
+      "scope_level": 1,
+      "fitch_notation": "  | 3. ¬Q",
       "validation": {
         "valid": true,
         "error": ""
-      }
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Skipped because Phase 3 or Phase 4 validation failed."
     },
     {
       "line": 4,
-      "formula": "Q",
-      "rule": "∧E",
-      "references": [
-        3
-      ],
-      "scope_level": 2,
-      "fitch_notation": "  | 4. Q",
-      "validation": {
-        "valid": true,
-        "error": ""
-      }
-    },
-    {
-      "line": 5,
       "formula": "P",
-      "rule": "∧E",
-      "references": [
-        3
-      ],
-      "scope_level": 2,
-      "fitch_notation": "  | 5. P",
-      "validation": {
-        "valid": true,
-        "error": ""
-      }
-    },
-    {
-      "line": 6,
-      "formula": "Q → R",
       "rule": "→E",
       "references": [
         1,
-        5
-      ],
-      "scope_level": 1,
-      "fitch_notation": " | 6. Q → R",
-      "validation": {
-        "valid": false,
-        "error": "Assumption not properly discharged"
-      }
-    },
-    {
-      "line": 7,
-      "formula": "R",
-      "rule": "→E",
-      "references": [
-        2,
-        4,
-        6
+        2
       ],
       "scope_level": 0,
-      "fitch_notation": "7. R",
+      "fitch_notation": "4.",
       "validation": {
         "valid": false,
         "error": "Assumption not properly discharged"
-      }
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Skipped because Phase 3 or Phase 4 validation failed."
+    },
+    {
+      "line": 5,
+      "formula": "¬Q",
+      "rule": "→E",
+      "references": [
+        3,
+        4
+      ],
+      "scope_level": 0,
+      "fitch_notation": "5. ¬Q",
+      "validation": {
+        "valid": false,
+        "error": "Cannot reference line 3 from current scope"
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Skipped because Phase 3 or Phase 4 validation failed."
     }
   ]
 }
