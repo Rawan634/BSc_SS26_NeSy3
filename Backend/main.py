@@ -15,6 +15,9 @@ from validator.rule_validator import (
 
 LOGGER = logging.getLogger(__name__)
 
+# Temporary debugging toggle: allow Phase 5 to run even if Phase 3/4 fails.
+FORCE_RUN_PHASE5_FOR_DEBUG = False
+
 
 def main() -> None:
 	logging.basicConfig(
@@ -38,6 +41,10 @@ def main() -> None:
 	phase3_passed = bool(phase_summary["phase3_passed"])
 	phase4_passed = bool(phase_summary["phase4_passed"])
 	can_run_phase5 = phase3_passed and phase4_passed
+
+	if FORCE_RUN_PHASE5_FOR_DEBUG and not can_run_phase5:
+		LOGGER.warning("FORCE_RUN_PHASE5_FOR_DEBUG is enabled: running Phase 5 despite Phase 3/4 failure.")
+		can_run_phase5 = True
 
 	if can_run_phase5:
 		phase5_result = check_proof_semantics(validated_proof)
