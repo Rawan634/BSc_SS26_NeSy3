@@ -1,6 +1,7 @@
 """Entry point for generating a Fitch-style proof with TutorAgent."""
 
 import logging
+import time
 from pathlib import Path
 
 from semantic_verifier.semantic_checker import check_proof_semantics
@@ -20,6 +21,8 @@ FORCE_RUN_PHASE5_FOR_DEBUG = False
 
 
 def main() -> None:
+	total_start = time.perf_counter()
+
 	logging.basicConfig(
 		level=logging.INFO,
 		format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -35,27 +38,46 @@ def main() -> None:
 		model="llama3",
 	)
 
+	generation_start = time.perf_counter()
 	proof = agent.generate_proof()
+	generation_seconds = time.perf_counter() - generation_start
+
+	phase3_start = time.perf_counter()
 	validated_proof = validate_proof(proof)
+	phase3_seconds = time.perf_counter() - phase3_start
+
+	phase4_start = time.perf_counter()
 	phase_summary = summarize_validation_phases(validated_proof)
+	phase4_seconds = time.perf_counter() - phase4_start
 	phase3_passed = bool(phase_summary["phase3_passed"])
 	phase4_passed = bool(phase_summary["phase4_passed"])
+	phase4_skipped = bool(phase_summary.get("phase4_skipped", not phase3_passed))
 	can_run_phase5 = phase3_passed and phase4_passed
 
 	if FORCE_RUN_PHASE5_FOR_DEBUG and not can_run_phase5:
 		LOGGER.warning("FORCE_RUN_PHASE5_FOR_DEBUG is enabled: running Phase 5 despite Phase 3/4 failure.")
 		can_run_phase5 = True
 
+	phase5_seconds = 0.0
 	if can_run_phase5:
+		phase5_start = time.perf_counter()
 		phase5_result = check_proof_semantics(validated_proof)
+		phase5_seconds = time.perf_counter() - phase5_start
 		validated_proof = phase5_result["proof"]
 		phase5_passed = bool(phase5_result["phase5_passed"])
+		phase5_skipped = False
 	else:
+		skip_reason = (
+			"Skipped because Phase 3 validation failed."
+			if not phase3_passed
+			else "Skipped because Phase 4 validation failed."
+		)
 		for step in validated_proof.get("steps", []):
 			step["semantic_valid"] = False
 			step["semantic_confidence"] = 0.0
-			step["semantic_error"] = "Skipped because Phase 3 or Phase 4 validation failed."
+			step["semantic_error"] = skip_reason
 		phase5_passed = False
+		phase5_skipped = True
 		LOGGER.info("Skipping Phase 5 semantic verification because Phase 3/4 did not fully pass.")
 
 	agent.print_proof(validated_proof)
@@ -64,11 +86,40 @@ def main() -> None:
 	print("\nPhase Summary")
 	print("-------------")
 	print(f"Phase 3 (Basic Rule Validation): {'PASSED' if phase3_passed else 'FAILED'}")
-	if phase3_passed:
-		print(f"Phase 4 (Scope and Assumption Validation): {'PASSED' if phase4_passed else 'FAILED'}")
-	else:
+	if phase4_skipped:
 		print("Phase 4 (Scope and Assumption Validation): SKIPPED")
-	print(f"Phase 5 (Semantic NLI Verification): {'PASSED' if phase5_passed else 'FAILED'}")
+	else:
+		print(f"Phase 4 (Scope and Assumption Validation): {'PASSED' if phase4_passed else 'FAILED'}")
+	if phase5_skipped:
+		print("Phase 5 (Semantic NLI Verification): SKIPPED")
+	else:
+		print(f"Phase 5 (Semantic NLI Verification): {'PASSED' if phase5_passed else 'FAILED'}")
+
+	phase3_errors = phase_summary.get("phase3_errors", [])
+	phase4_errors = phase_summary.get("phase4_errors", [])
+	if phase3_errors:
+		print("\nPhase 3 Errors")
+		print("--------------")
+		for error in phase3_errors:
+			print(f"- {error}")
+
+	if phase4_errors:
+		print("\nPhase 4 Errors")
+		print("--------------")
+		for error in phase4_errors:
+			print(f"- {error}")
+
+	total_seconds = time.perf_counter() - total_start
+	print("\nTiming")
+	print("------")
+	print(f"Proof generation: {generation_seconds:.2f}s")
+	print(f"Phase 3 validation: {phase3_seconds:.2f}s")
+	print(f"Phase 4 summary: {phase4_seconds:.2f}s")
+	if phase5_skipped:
+		print("Phase 5 semantic check: SKIPPED")
+	else:
+		print(f"Phase 5 semantic check: {phase5_seconds:.2f}s")
+	print(f"Total runtime: {total_seconds:.2f}s")
 
 	validated_output_path = backend_dir / "validator" / "latest_validated_proof.json"
 	save_json_file(validated_output_path, validated_proof)

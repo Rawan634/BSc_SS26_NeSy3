@@ -2,81 +2,35 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P → Q",
+      "formula": "P ∧ Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P → Q",
-      "validation": {
-        "valid": true,
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
-    },
-    {
-      "line": 2,
-      "formula": "P",
-      "rule": "premise",
-      "references": [],
-      "scope_level": 0,
-      "fitch_notation": "2. P",
-      "validation": {
-        "valid": true,
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
-    },
-    {
-      "line": 3,
-      "formula": "P",
-      "rule": "assumption",
-      "references": [],
-      "scope_level": 1,
-      "fitch_notation": "  | 3. P",
-      "validation": {
-        "valid": true,
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
-    },
-    {
-      "line": 4,
-      "formula": "Q",
-      "rule": "→E",
-      "references": [
-        1,
-        3
-      ],
-      "scope_level": 1,
-      "fitch_notation": "  | 4. Q",
+      "fitch_notation": "1. P ∧ Q",
       "validation": {
         "valid": true,
         "error": ""
       },
       "semantic_valid": false,
-      "semantic_confidence": 0.811063826084137,
-      "semantic_error": "Semantic mismatch for rule →E: entailment score 0.811 is below threshold 0.70."
+      "semantic_confidence": 0.0,
+      "semantic_error": "Skipped because Phase 3 validation failed."
     },
     {
-      "line": 5,
-      "formula": "P",
-      "rule": " assumption",
-      "references": [],
+      "line": 2,
+      "formula": "R",
+      "rule": "",
+      "references": [
+        1
+      ],
       "scope_level": 0,
-      "fitch_notation": "5. P",
+      "fitch_notation": "2. R",
       "validation": {
         "valid": false,
-        "error": "Assumption not properly discharged"
+        "error": "Missing rule for step."
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Skipped because Phase 3 validation failed."
     }
   ]
 }

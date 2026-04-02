@@ -208,7 +208,7 @@ def check_step_semantics(
     """
     normalized_rule = (rule or "").strip()
 
-    if normalized_rule.lower() in {"premise", "assumption"}:
+    if normalized_rule.lower() in {"premise", "assumption", "goal"}:
         return {
             "semantic_valid": True,
             "semantic_confidence": 1.0,

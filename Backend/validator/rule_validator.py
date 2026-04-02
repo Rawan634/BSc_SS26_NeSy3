@@ -299,11 +299,17 @@ def validate_step(
     rule_value = step.get("rule")
     rule = "" if rule_value is None else str(rule_value).strip()
 
+    # Some model outputs encode the goal line via Fitch text while leaving rule blank.
+    if not rule:
+        fitch_text = str(step.get("fitch_notation", "")).strip().lower()
+        if fitch_text.startswith("goal:"):
+            rule = "goal"
+
     references, references_error = _normalize_references(step.get("references"))
     if references_error:
         return False, references_error
 
-    if rule.lower() in {"premise", "assumption"}:
+    if rule.lower() in {"premise", "assumption", "goal"}:
         return True, ""
 
     try:
@@ -514,11 +520,10 @@ def _classify_validation_error(rule: str, error_text: str) -> str:
     Phase 4 covers scope tracking, subproof discipline, and assumption discharge.
     """
     lowered = (error_text or "").lower()
-    rule_lower = (rule or "").strip().lower()
-
     phase4_markers = [
         "invalid scope jump",
         "entering a deeper scope requires an assumption",
+        "must reference an assumption line",
         "assumption not properly discharged",
         "from current scope",
         "immediately inner subproof",
@@ -527,10 +532,6 @@ def _classify_validation_error(rule: str, error_text: str) -> str:
     ]
 
     if any(marker in lowered for marker in phase4_markers):
-        return "phase4"
-
-    if rule_lower in {"→i", "¬i", "⊥e"}:
-        # These rules are introduced with subproof/assumption management in Phase 4.
         return "phase4"
 
     return "phase3"
@@ -574,9 +575,16 @@ def summarize_validation_phases(proof: Dict[str, Any]) -> Dict[str, Any]:
         else:
             phase3_errors.append(entry)
 
+    phase3_passed = len(phase3_errors) == 0
+    # Phase 4 is evaluated independently; scope/subproof failures belong here
+    # even when Phase 3 also has failures.
+    phase4_passed = len(phase4_errors) == 0
+    phase4_skipped = False
+
     return {
-        "phase3_passed": len(phase3_errors) == 0,
-        "phase4_passed": len(phase4_errors) == 0,
+        "phase3_passed": phase3_passed,
+        "phase4_passed": phase4_passed,
+        "phase4_skipped": phase4_skipped,
         "phase3_errors": phase3_errors,
         "phase4_errors": phase4_errors,
     }
