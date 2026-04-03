@@ -59,12 +59,14 @@ def main() -> None:
 		can_run_phase5 = True
 
 	phase5_seconds = 0.0
+	phase5_errors = []
 	if can_run_phase5:
 		phase5_start = time.perf_counter()
 		phase5_result = check_proof_semantics(validated_proof)
 		phase5_seconds = time.perf_counter() - phase5_start
 		validated_proof = phase5_result["proof"]
 		phase5_passed = bool(phase5_result["phase5_passed"])
+		phase5_errors = list(phase5_result.get("phase5_errors", []))
 		phase5_skipped = False
 	else:
 		skip_reason = (
@@ -107,6 +109,12 @@ def main() -> None:
 		print("\nPhase 4 Errors")
 		print("--------------")
 		for error in phase4_errors:
+			print(f"- {error}")
+
+	if phase5_errors:
+		print("\nPhase 5 Errors")
+		print("--------------")
+		for error in phase5_errors:
 			print(f"- {error}")
 
 	total_seconds = time.perf_counter() - total_start

@@ -2,35 +2,84 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P ∧ Q",
+      "formula": "P → Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P ∧ Q",
+      "fitch_notation": "1. P → Q",
       "validation": {
         "valid": true,
         "error": ""
       },
-      "semantic_valid": false,
-      "semantic_confidence": 0.0,
-      "semantic_error": "Skipped because Phase 3 validation failed."
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
     },
     {
       "line": 2,
-      "formula": "R",
-      "rule": "",
+      "formula": "Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "2. Q",
+      "validation": {
+        "valid": true,
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 3,
+      "formula": "P",
+      "rule": "assumption",
+      "references": [],
+      "scope_level": 1,
+      "fitch_notation": "  | 3. P",
+      "validation": {
+        "valid": true,
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 4,
+      "formula": "Q → P",
+      "rule": "→I",
       "references": [
-        1
+        1,
+        3
       ],
       "scope_level": 0,
-      "fitch_notation": "2. R",
+      "fitch_notation": "4. Q → P",
       "validation": {
         "valid": false,
-        "error": "Missing rule for step."
+        "error": "Rule '→I' must reference an assumption line as its first reference."
       },
       "semantic_valid": false,
       "semantic_confidence": 0.0,
-      "semantic_error": "Skipped because Phase 3 validation failed."
+      "semantic_error": "Formula-level semantic mismatch for rule →I."
+    },
+    {
+      "line": 5,
+      "formula": "P",
+      "rule": "→E",
+      "references": [
+        4,
+        2
+      ],
+      "scope_level": 0,
+      "fitch_notation": "5. P",
+      "validation": {
+        "valid": true,
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 0.7822021245956421,
+      "semantic_error": ""
     }
   ]
 }

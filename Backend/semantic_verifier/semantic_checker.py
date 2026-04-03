@@ -252,10 +252,7 @@ def check_step_semantics(
         entailment_score = float(nli_scores.get("entailment", 0.0))
         contradiction_score = float(nli_scores.get("contradiction", 0.0))
         neutral_score = float(nli_scores.get("neutral", 0.0))
-        semantic_valid = (
-            entailment_score >= ENTAILMENT_THRESHOLD
-            and entailment_score > contradiction_score
-        )
+        semantic_valid = entailment_score >= ENTAILMENT_THRESHOLD
 
         LOGGER.info(
             "Semantic decision for line %s (rule %s): entailment=%.3f contradiction=%.3f neutral=%.3f semantic_valid=%s",
