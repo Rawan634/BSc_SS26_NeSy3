@@ -2,13 +2,14 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P → Q",
+      "formula": "¬¬P",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P → Q",
+      "fitch_notation": "1. ¬¬P",
       "validation": {
         "valid": true,
+        "error_type": "",
         "error": ""
       },
       "semantic_valid": true,
@@ -17,28 +18,34 @@
     },
     {
       "line": 2,
-      "formula": "Q",
-      "rule": "premise",
-      "references": [],
+      "formula": "P",
+      "rule": "¬E",
+      "references": [
+        1
+      ],
       "scope_level": 0,
-      "fitch_notation": "2. Q",
+      "fitch_notation": "2. P",
       "validation": {
         "valid": true,
+        "error_type": "",
         "error": ""
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
+      "semantic_valid": false,
+      "semantic_confidence": 0.41199514269828796,
+      "semantic_error": "Semantic inconsistency for rule ¬E: the formulas [1: ¬¬P] did not entail the conclusion 'P' strongly enough. Reference formulas: [1: ¬¬P]. Conclusion formula: 'P'. Likely cause: the referenced lines express a different logical shape than the rule expects, or the conclusion was derived from the wrong subformula. NLI entailment score: 0.412 (threshold 0.70).",
+      "semantic_warning": "",
+      "error_type": "LOW_ENTAILMENT_CONFIDENCE"
     },
     {
       "line": 3,
-      "formula": "P",
-      "rule": "assumption",
+      "formula": "P → Q",
+      "rule": "premise",
       "references": [],
-      "scope_level": 1,
-      "fitch_notation": "  | 3. P",
+      "scope_level": 0,
+      "fitch_notation": "3. P → Q",
       "validation": {
         "valid": true,
+        "error_type": "",
         "error": ""
       },
       "semantic_valid": true,
@@ -47,39 +54,24 @@
     },
     {
       "line": 4,
-      "formula": "Q → P",
-      "rule": "→I",
+      "formula": "Q",
+      "rule": "→E",
       "references": [
-        1,
+        2,
         3
       ],
       "scope_level": 0,
-      "fitch_notation": "4. Q → P",
+      "fitch_notation": "4. Q",
       "validation": {
-        "valid": false,
-        "error": "Rule '→I' must reference an assumption line as its first reference."
+        "valid": true,
+        "error_type": "",
+        "error": ""
       },
       "semantic_valid": false,
       "semantic_confidence": 0.0,
-      "semantic_error": "Formula-level semantic mismatch for rule →I."
-    },
-    {
-      "line": 5,
-      "formula": "P",
-      "rule": "→E",
-      "references": [
-        4,
-        2
-      ],
-      "scope_level": 0,
-      "fitch_notation": "5. P",
-      "validation": {
-        "valid": true,
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 0.7822021245956421,
-      "semantic_error": ""
+      "semantic_error": "Semantic inconsistency for rule →E: modus ponens requires an implication p → q and a matching premise p, but the referenced formulas are [1: P; 2: P → Q] and the conclusion is 'Q'. Likely cause: the antecedent of the implication does not match the supporting premise, or the conclusion uses the wrong consequent.",
+      "error_type": "RULE_TEMPLATE_MISMATCH",
+      "semantic_warning": ""
     }
   ]
 }
