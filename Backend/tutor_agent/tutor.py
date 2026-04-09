@@ -3,33 +3,10 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from ollama import chat
-
-
-DEFAULT_OLLAMA_NUM_PREDICT = 512
-
-
-def _resolve_think_setting(model_name: str) -> Optional[Any]:
-	"""Resolve think mode from env var, with a fast default for DeepSeek R1 models."""
-	env_value = os.getenv("OLLAMA_THINK")
-	if env_value is not None:
-		normalized = env_value.strip().lower()
-		if normalized in {"0", "false", "off", "no"}:
-			return False
-		if normalized in {"1", "true", "on", "yes"}:
-			return True
-		if normalized in {"low", "medium", "high"}:
-			return normalized
-
-	# DeepSeek thinking can be very slow on CPU; default to faster non-thinking mode.
-	if model_name.strip().lower().startswith("deepseek-r1"):
-		return False
-
-	return None
 
 
 def read_text_file(file_path: Path) -> str:
@@ -127,8 +104,6 @@ class TutorAgent:
 	def generate_proof(self) -> Dict[str, Any]:
 		"""Generate and validate a Fitch-style proof as structured JSON."""
 		prompt = self.build_prompt()
-		num_predict = int(os.getenv("OLLAMA_NUM_PREDICT", str(DEFAULT_OLLAMA_NUM_PREDICT)))
-		think_setting = _resolve_think_setting(self.model)
 
 		response = chat(
 			model=self.model,
@@ -138,9 +113,7 @@ class TutorAgent:
 					"content": prompt,
 				}
 			],
-			think=think_setting,
-			format="json",
-			options={"temperature": 0.2, "num_predict": num_predict},
+			options={"temperature": 0.2},
 		)
 
 		content = response["message"]["content"]
