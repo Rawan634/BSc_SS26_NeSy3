@@ -1,6 +1,7 @@
 """Entry point for generating a Fitch-style proof with TutorAgent."""
 
 import logging
+import os
 import time
 from pathlib import Path
 
@@ -18,6 +19,7 @@ LOGGER = logging.getLogger(__name__)
 
 # Temporary debugging toggle: allow Phase 5 to run even if Phase 3/4 fails.
 FORCE_RUN_PHASE5_FOR_DEBUG = False
+DEFAULT_OLLAMA_MODEL = "llama3"
 
 
 def main() -> None:
@@ -31,12 +33,14 @@ def main() -> None:
 	backend_dir = Path(__file__).resolve().parent
 	problem_path = backend_dir / "examples" / "test.txt"
 	template_path = backend_dir / "tutor_agent" / "prompt_template.txt"
+	model_name = os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
 
 	agent = TutorAgent(
 		examples_path=problem_path,
 		template_path=template_path,
-		model="llama3",
+		model=model_name,
 	)
+	LOGGER.info("Using Ollama model: %s", model_name)
 
 	generation_start = time.perf_counter()
 	proof = agent.generate_proof()

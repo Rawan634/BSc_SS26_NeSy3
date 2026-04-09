@@ -1,2 +1,2 @@
-Premises: ¬¬P, P → Q
-Goal: Q
+Premises: P → Q
+Goal: P → (Q → Q)
