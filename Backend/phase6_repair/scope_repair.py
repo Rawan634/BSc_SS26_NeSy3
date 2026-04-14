@@ -170,6 +170,9 @@ def _restore_goal_line_if_needed(
     if not steps:
         return
 
+    if not goal_formula:
+        return
+
     last_formula = str(steps[-1].get("formula", "")).strip()
     if last_formula == goal_formula:
         return
@@ -214,7 +217,15 @@ def repair_scopes(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dic
     if not isinstance(steps, list) or not isinstance(validated_steps, list):
         return repaired
 
-    original_goal_line = copy.deepcopy(steps[-1]) if steps else {}
+    goal_step = next(
+        (
+            copy.deepcopy(step)
+            for step in steps
+            if isinstance(step, dict) and str(step.get("rule", "")).strip().lower() == "goal"
+        ),
+        {},
+    )
+    original_goal_line = goal_step if isinstance(goal_step, dict) else {}
     goal_formula = str(original_goal_line.get("formula", "")).strip()
 
     _rebuild_lines_and_fitch(steps)

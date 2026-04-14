@@ -2,11 +2,11 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P → (Q → R)",
+      "formula": "P → Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P → (Q → R)",
+      "fitch_notation": "1. P → Q",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -15,11 +15,11 @@
     },
     {
       "line": 2,
-      "formula": "P",
-      "rule": "assumption",
+      "formula": "¬Q",
+      "rule": "premise",
       "references": [],
-      "scope_level": 1,
-      "fitch_notation": "  | 2. P",
+      "scope_level": 0,
+      "fitch_notation": "2. ¬Q",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -28,78 +28,46 @@
     },
     {
       "line": 3,
-      "formula": "(Q → R)",
-      "rule": "→E",
-      "references": [
-        1
-      ],
+      "formula": "P",
+      "rule": "assumption",
+      "references": [],
       "scope_level": 1,
-      "fitch_notation": "  | 3. (Q → R)",
+      "fitch_notation": "  | 3. P",
       "validation": {
-        "valid": false,
-        "error_type": "INVALID_PREMISE",
-        "error": "Rule '→E' (Modus Ponens) requires 2 reference(s) matching p → q, p and concludes q. Condition failed: it requires 2 reference(s), but this step provided 1. Referenced lines: line 1 (rule 'premise', formula 'P → (Q → R)'). Current step formula: '(Q → R)'. Why invalid: the proof step does not supply the support lines needed by the rule."
+        "valid": true,
+        "error_type": "",
+        "error": ""
       }
     },
     {
       "line": 4,
-      "formula": "Q",
-      "rule": "assumption",
-      "references": [],
-      "scope_level": 2,
-      "fitch_notation": "   | 4. Q",
+      "formula": "¬Q",
+      "rule": "→E",
+      "references": [
+        2
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 4. ¬Q",
       "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
+        "valid": false,
+        "error_type": "INVALID_PREMISE",
+        "error": "Rule '→E' (Modus Ponens) requires 2 reference(s) matching p → q, p and concludes q. Condition failed: it requires 2 reference(s), but this step provided 1. Referenced lines: line 2 (rule 'premise', formula '¬Q'). Current step formula: '¬Q'. Why invalid: the proof step does not supply the support lines needed by the rule."
       }
     },
     {
       "line": 5,
-      "formula": "R",
-      "rule": "→E",
+      "formula": "¬P",
+      "rule": "→I",
       "references": [
         3,
         4
       ],
-      "scope_level": 2,
-      "fitch_notation": "   | 5. R",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      }
-    },
-    {
-      "line": 6,
-      "formula": "(Q → R)",
-      "rule": "→I",
-      "references": [
-        3,
-        5
-      ],
-      "scope_level": 1,
-      "fitch_notation": "  | 6. (Q → R)",
+      "scope_level": 0,
+      "fitch_notation": "5. ¬P",
       "validation": {
         "valid": false,
         "error_type": "INVALID_PREMISE",
-        "error": "Rule '→I' (Implication Introduction) requires 2 reference(s) matching Assume p, derive q and concludes p → q. Condition failed: the first reference must be an assumption line. Referenced lines: line 3 (rule '→E', formula '(Q → R)'); line 5 (rule '→E', formula 'R'). Current step formula: '(Q → R)'. Why invalid: line 3 is '→E', not an assumption."
-      }
-    },
-    {
-      "line": 7,
-      "formula": "P → (Q → R)",
-      "rule": "→I",
-      "references": [
-        2,
-        6
-      ],
-      "scope_level": 0,
-      "fitch_notation": "7. P → (Q → R)",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
+        "error": "Rule '→I' (Implication Introduction) requires 2 reference(s) matching Assume p, derive q and concludes p → q. Condition failed: the step formula must be an implication of the form p → q. Referenced lines: line 3 (rule 'assumption', formula 'P'); line 4 (rule '→E', formula '¬Q'). Current step formula: '¬P'. Why invalid: the current conclusion '¬P' is not an implication."
       }
     }
   ]
