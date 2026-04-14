@@ -1,0 +1,63 @@
+{
+  "steps": [
+    {
+      "line": 1,
+      "formula": "P ∨ Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "1. P ∨ Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 2,
+      "formula": "¬P",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "2. ¬P",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 3,
+      "formula": "Q",
+      "rule": "¬E",
+      "references": [
+        2
+      ],
+      "scope_level": 0,
+      "fitch_notation": "3. Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Semantic checker error: Rule ¬E requires a double-negated premise.",
+      "semantic_warning": "",
+      "error_type": "SEMANTIC_ENTAILMENT_FAILED"
+    }
+  ],
+  "previous_error": [
+    {
+      "iteration": 1,
+      "phase3_errors": [],
+      "phase4_errors": []
+    }
+  ]
+}

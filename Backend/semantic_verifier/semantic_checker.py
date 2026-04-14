@@ -19,6 +19,8 @@ ENTAILMENT_THRESHOLD = 0.7
 # If False, missing templates are treated as semantic failures.
 ALLOW_UNVERIFIED_RULES = True
 
+_SYMBOLIC_SHORT_CIRCUIT_RULES = {"→E", "→I", "¬I", "¬E", "∧E", "∧I", "∨I", "∨E", "MT", "HS", "DS"}
+
 
 def _normalize_formula(formula: str) -> str:
     return re.sub(r"\s+", "", str(formula or ""))
@@ -545,6 +547,43 @@ def check_step_semantics(
 
     try:
         conclusion_formula = str(step.get("formula", ""))
+
+        if normalized_rule in _SYMBOLIC_SHORT_CIRCUIT_RULES:
+            if _passes_rule_semantic_consistency(normalized_rule, conclusion_formula, referenced_formulas):
+                LOGGER.info(
+                    "Symbolic semantic verification passed for line %s (rule %s); skipping NLI.",
+                    step.get("line", "?"),
+                    normalized_rule,
+                )
+                return {
+                    "semantic_valid": True,
+                    "semantic_confidence": 1.0,
+                    "semantic_error": "",
+                    "semantic_warning": "",
+                    "error_type": "",
+                }
+
+        symbolic_passed = False
+        if normalized_rule in _SYMBOLIC_SHORT_CIRCUIT_RULES:
+            symbolic_passed = _passes_rule_semantic_consistency(
+                normalized_rule,
+                conclusion_formula,
+                referenced_formulas,
+            )
+            if symbolic_passed:
+                LOGGER.info(
+                    "Symbolic semantic verification passed for line %s (rule %s); skipping NLI.",
+                    step.get("line", "?"),
+                    normalized_rule,
+                )
+                return {
+                    "semantic_valid": True,
+                    "semantic_confidence": 1.0,
+                    "semantic_error": "",
+                    "semantic_warning": "",
+                    "error_type": "",
+                }
+
         referenced_texts = [formula_to_text(formula) for formula in referenced_formulas]
         conclusion_text = formula_to_text(conclusion_formula)
         LOGGER.debug(
@@ -554,18 +593,12 @@ def check_step_semantics(
             conclusion_text,
         )
 
-        if not _passes_rule_semantic_consistency(normalized_rule, conclusion_formula, referenced_formulas):
-            return {
-                "semantic_valid": False,
-                "semantic_confidence": 0.0,
-                "semantic_error": _build_formula_level_mismatch_message(
-                    normalized_rule,
-                    conclusion_formula,
-                    referenced_formulas,
-                ),
-                "error_type": "RULE_TEMPLATE_MISMATCH",
-                "semantic_warning": "",
-            }
+        if normalized_rule in _SYMBOLIC_SHORT_CIRCUIT_RULES and not symbolic_passed:
+            LOGGER.info(
+                "Symbolic semantic verification failed for line %s (rule %s); falling back to NLI.",
+                step.get("line", "?"),
+                normalized_rule,
+            )
 
         bindings = _build_template_bindings(normalized_rule, conclusion_formula, referenced_formulas)
 

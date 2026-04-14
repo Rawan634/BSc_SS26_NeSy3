@@ -1,0 +1,125 @@
+{
+  "steps": [
+    {
+      "line": 1,
+      "formula": "P → Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "1. P → Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 2,
+      "formula": "¬Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "2. ¬Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 3,
+      "formula": "P",
+      "rule": "assumption",
+      "references": [],
+      "scope_level": 1,
+      "fitch_notation": "  | 3. P",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 4,
+      "formula": "¬Q",
+      "rule": "→E",
+      "references": [
+        2,
+        3
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 4. ¬Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Semantic checker error: Rule →E requires the first reference to be an implication.",
+      "semantic_warning": "",
+      "error_type": "SEMANTIC_ENTAILMENT_FAILED"
+    },
+    {
+      "line": 5,
+      "formula": "P → ¬Q",
+      "rule": "→I",
+      "references": [
+        3,
+        4
+      ],
+      "scope_level": 0,
+      "fitch_notation": "5. P → ¬Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 6,
+      "formula": "¬P",
+      "rule": "→E",
+      "references": [
+        2,
+        5
+      ],
+      "scope_level": 0,
+      "fitch_notation": "6. ¬P",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": false,
+      "semantic_confidence": 0.0,
+      "semantic_error": "Semantic checker error: Rule →E requires the first reference to be an implication.",
+      "semantic_warning": "",
+      "error_type": "SEMANTIC_ENTAILMENT_FAILED"
+    }
+  ],
+  "previous_error": [
+    {
+      "iteration": 1,
+      "phase3_errors": [
+        "Line 4: Rule '→E' (Modus Ponens) requires 2 reference(s) matching p → q, p and concludes q. Condition failed: it requires 2 reference(s), but this step provided 1. Referenced lines: line 2 (rule 'premise', formula '¬Q'). Current step formula: '¬Q'. Why invalid: the proof step does not supply the support lines needed by the rule.",
+        "Line 5: Rule '→I' (Implication Introduction) requires 2 reference(s) matching Assume p, derive q and concludes p → q. Condition failed: the step formula must be an implication of the form p → q. Referenced lines: line 3 (rule 'assumption', formula 'P'); line 4 (rule '→E', formula '¬Q'). Current step formula: '¬P'. Why invalid: the current conclusion '¬P' is not an implication."
+      ],
+      "phase4_errors": []
+    }
+  ]
+}

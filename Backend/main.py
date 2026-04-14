@@ -4,6 +4,7 @@ import logging
 import time
 from pathlib import Path
 
+from phase6_repair.repair_controller import run_structural_repair
 from semantic_verifier.semantic_checker import check_proof_semantics
 from tutor_agent.tutor import TutorAgent
 from validator.rule_validator import (
@@ -49,6 +50,19 @@ def main() -> None:
 	phase4_start = time.perf_counter()
 	phase_summary = summarize_validation_phases(validated_proof)
 	phase4_seconds = time.perf_counter() - phase4_start
+
+	phase6_start = time.perf_counter()
+	validated_proof = run_structural_repair(validated_proof)
+	phase6_seconds = time.perf_counter() - phase6_start
+
+	phase3_start_post_repair = time.perf_counter()
+	validated_proof = validate_proof(validated_proof)
+	phase3_seconds += time.perf_counter() - phase3_start_post_repair
+
+	phase4_start_post_repair = time.perf_counter()
+	phase_summary = summarize_validation_phases(validated_proof)
+	phase4_seconds += time.perf_counter() - phase4_start_post_repair
+
 	phase3_passed = bool(phase_summary["phase3_passed"])
 	phase4_passed = bool(phase_summary["phase4_passed"])
 	phase4_skipped = bool(phase_summary.get("phase4_skipped", not phase3_passed))
@@ -101,6 +115,17 @@ def main() -> None:
 
 	phase3_errors = phase_summary.get("phase3_errors", [])
 	phase4_errors = phase_summary.get("phase4_errors", [])
+	previous_error = validated_proof.get("previous_error", []) if isinstance(validated_proof, dict) else []
+	if previous_error:
+		print("\nPrevious Error Log")
+		print("------------------")
+		for item in previous_error:
+			if not isinstance(item, dict):
+				continue
+			iteration = item.get("iteration", "?")
+			p3_count = len(item.get("phase3_errors", [])) if isinstance(item.get("phase3_errors", []), list) else 0
+			p4_count = len(item.get("phase4_errors", [])) if isinstance(item.get("phase4_errors", []), list) else 0
+			print(f"- Iteration {iteration}: Phase 3 errors={p3_count}, Phase 4 errors={p4_count}")
 	if phase3_errors:
 		print("\nPhase 3 Errors")
 		print("--------------")
@@ -125,19 +150,23 @@ def main() -> None:
 		for warning in phase5_warnings:
 			print(f"- {warning}")
 
+	if previous_error and isinstance(validated_proof, dict):
+		validated_proof["previous_error"] = previous_error
+
 	total_seconds = time.perf_counter() - total_start
 	print("\nTiming")
 	print("------")
 	print(f"Proof generation: {generation_seconds:.2f}s")
 	print(f"Phase 3 validation: {phase3_seconds:.2f}s")
 	print(f"Phase 4 summary: {phase4_seconds:.2f}s")
+	print(f"Phase 6 structural repair: {phase6_seconds:.2f}s")
 	if phase5_skipped:
 		print("Phase 5 semantic check: SKIPPED")
 	else:
 		print(f"Phase 5 semantic check: {phase5_seconds:.2f}s")
 	print(f"Total runtime: {total_seconds:.2f}s")
 
-	validated_output_path = backend_dir / "validator" / "latest_validated_proof.json"
+	validated_output_path = backend_dir / "outputs" / "latest_structurally_repaired_proof.json"
 	save_json_file(validated_output_path, validated_proof)
 	print(f"\nValidated proof saved to: {validated_output_path}")
 
