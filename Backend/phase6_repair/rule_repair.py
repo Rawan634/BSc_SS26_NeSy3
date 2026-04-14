@@ -406,29 +406,17 @@ def _repair_or_elimination(
                         step["formula"] = disjunction_parts[0]
                     return
 
-    # Otherwise, synthesize placeholder implication references so ∨E has arity 3.
-    disjunction_step = next((steps[ref - 1] for ref in refs if 0 < ref <= len(steps) and _extract_disjunction_parts(steps[ref - 1].get("formula")) is not None), None)
-    if disjunction_step is None and candidates:
-        disjunction_step = steps[candidates[0] - 1]
-
-    disjunction_formula = str(disjunction_step.get("formula", "P ∨ Q")) if disjunction_step else "P ∨ Q"
-    disjunction_parts = _extract_disjunction_parts(disjunction_formula) or ["P", "Q"]
-    conclusion_formula = str(step.get("formula", "Q")).strip() or "Q"
-
-    placeholder_left = _build_placeholder_implication(disjunction_parts[0], conclusion_formula)
-    placeholder_right = _build_placeholder_implication(disjunction_parts[1], conclusion_formula)
-
-    disjunction_ref = _to_int(disjunction_step.get("line")) if disjunction_step is not None else None
-    if disjunction_ref is None and candidates:
-        disjunction_ref = candidates[0]
-
-    step["references"] = [
-        disjunction_ref or 1,
-        current_idx + 1,
-        current_idx + 2,
-    ]
-    step["rule"] = "∨E"
-    step["phase6_placeholder_conditionals"] = [placeholder_left, placeholder_right]
+    # No new-line mode: keep only existing references and downgrade to best 2-premise rule.
+    fallback_rule = _choose_non_strict_fallback_rule(
+        formula=str(step.get("formula", "")),
+        reference_count=max(1, len(refs)),
+        rule_lookup=get_rule_lookup(),
+    )
+    step["rule"] = fallback_rule
+    fallback_definition = get_rule_lookup().get(fallback_rule, {})
+    fallback_premises = fallback_definition.get("premises", []) if isinstance(fallback_definition, dict) else []
+    fallback_count = len(fallback_premises) if isinstance(fallback_premises, list) else 0
+    step["references"] = _fit_reference_count(refs, fallback_count, candidates)
 
 
 def repair_rules(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dict[str, Any]:

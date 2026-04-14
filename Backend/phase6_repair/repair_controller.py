@@ -37,6 +37,36 @@ class RepairController:
     def _phase_status(summary: Dict[str, Any]) -> Tuple[bool, bool]:
         return bool(summary.get("phase3_passed", False)), bool(summary.get("phase4_passed", False))
 
+    @staticmethod
+    def _extract_goal_formula(proof: Dict[str, Any]) -> str:
+        steps = proof.get("steps", []) if isinstance(proof, dict) else []
+        if not isinstance(steps, list):
+            return ""
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            if str(step.get("rule", "")).strip().lower() == "goal":
+                return str(step.get("formula", "")).strip()
+        return ""
+
+    @staticmethod
+    def _truncate_after_first_goal(proof: Dict[str, Any], goal_formula: str) -> Dict[str, Any]:
+        if not goal_formula:
+            return proof
+        steps = proof.get("steps", []) if isinstance(proof, dict) else []
+        if not isinstance(steps, list):
+            return proof
+        for idx, step in enumerate(steps):
+            if not isinstance(step, dict):
+                continue
+            if str(step.get("formula", "")).strip() == goal_formula:
+                truncated = copy.deepcopy(proof)
+                truncated_steps = truncated.get("steps", [])
+                if isinstance(truncated_steps, list):
+                    truncated["steps"] = truncated_steps[: idx + 1]
+                return truncated
+        return proof
+
     def _run_phase3(self, proof: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         validated = validate_proof(proof)
         summary = summarize_validation_phases(validated)
@@ -65,6 +95,8 @@ class RepairController:
         save_json_file(self.latest_validated_path, proof)
 
         current = proof
+        original_step_count = len(current.get("steps", [])) if isinstance(current.get("steps", []), list) else 0
+        goal_formula = self._extract_goal_formula(current)
         previous_error: list[Dict[str, Any]] = []
 
         for iteration in range(1, self.max_iterations + 1):
@@ -100,6 +132,23 @@ class RepairController:
             # Re-evaluate Phase 4 after post-scope rule repairs.
             current, phase4_recheck_summary = self._run_phase4(current)
             _, phase4_passed = self._phase_status(phase4_recheck_summary)
+
+            # Strict no-new-lines policy for Phase 6.
+            steps = current.get("steps", []) if isinstance(current, dict) else []
+            if isinstance(steps, list) and len(steps) > original_step_count:
+                current["steps"] = steps[:original_step_count]
+                current, _ = self._run_phase3(current)
+                current, _ = self._run_phase4(current)
+
+            # If goal is already derived and structurally valid, end proof there.
+            if phase3_passed and phase4_passed and goal_formula:
+                truncated = self._truncate_after_first_goal(current, goal_formula)
+                truncated_validated = validate_proof(truncated)
+                truncated_summary = summarize_validation_phases(truncated_validated)
+                t_p3, t_p4 = self._phase_status(truncated_summary)
+                if t_p3 and t_p4:
+                    current = truncated
+                    phase3_passed, phase4_passed = True, True
 
             current["previous_error"] = previous_error
 
