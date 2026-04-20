@@ -2,11 +2,11 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P → Q",
+      "formula": "P \u2192 Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P → Q",
+      "fitch_notation": "1. P \u2192 Q",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -18,11 +18,11 @@
     },
     {
       "line": 2,
-      "formula": "Q → R",
+      "formula": "Q \u2192 R",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "2. Q → R",
+      "fitch_notation": "2. Q \u2192 R",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -34,11 +34,11 @@
     },
     {
       "line": 3,
-      "formula": "R → S",
+      "formula": "R \u2192 S",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "3. R → S",
+      "fitch_notation": "3. R \u2192 S",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -50,11 +50,11 @@
     },
     {
       "line": 4,
-      "formula": "¬S",
+      "formula": "\u00acS",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "4. ¬S",
+      "fitch_notation": "4. \u00acS",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -66,14 +66,14 @@
     },
     {
       "line": 5,
-      "formula": "P → R",
+      "formula": "P \u2192 R",
       "rule": "HS",
       "references": [
         1,
         2
       ],
       "scope_level": 0,
-      "fitch_notation": "5. P → R",
+      "fitch_notation": "5. P \u2192 R",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -87,14 +87,14 @@
     },
     {
       "line": 6,
-      "formula": "Q → S",
+      "formula": "Q \u2192 S",
       "rule": "HS",
       "references": [
         2,
         3
       ],
       "scope_level": 0,
-      "fitch_notation": "6. Q → S",
+      "fitch_notation": "6. Q \u2192 S",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -108,14 +108,14 @@
     },
     {
       "line": 7,
-      "formula": "¬R",
+      "formula": "\u00acR",
       "rule": "MT",
       "references": [
         3,
         4
       ],
       "scope_level": 0,
-      "fitch_notation": "7. ¬R",
+      "fitch_notation": "7. \u00acR",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -129,14 +129,14 @@
     },
     {
       "line": 8,
-      "formula": "¬P",
+      "formula": "\u00acP",
       "rule": "MT",
       "references": [
         5,
         7
       ],
       "scope_level": 0,
-      "fitch_notation": "8. ¬P",
+      "fitch_notation": "8. \u00acP",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -149,7 +149,7 @@
       "error_type": ""
     }
   ],
-  "requested_goal_formula": "¬P",
+  "requested_goal_formula": "\u00acP",
   "previous_error": [
     {
       "iteration": 1,
@@ -158,7 +158,5 @@
     }
   ],
   "lean_goal_repair_applied": true,
-  "lean_goal_repair_method": "lean_formal_proof",
-  "goal_achieved": true,
-  "goal_error": ""
+  "lean_goal_repair_method": "lean_formal_proof"
 }

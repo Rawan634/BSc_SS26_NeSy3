@@ -1,8 +1,9 @@
 """Load and run the Phase 5 NLI model for semantic verification.
 
-The preferred model is facebook/bart-large-mnli through a Transformers pipeline.
-A lightweight lexical fallback is provided for environments where Transformers or
-model download is unavailable, so the semantic pipeline can still run gracefully.
+The preferred model is MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli through a
+Transformers pipeline. A lightweight lexical fallback is provided for environments
+where Transformers or model download is unavailable, so the semantic pipeline can
+still run gracefully.
 """
 
 from __future__ import annotations
@@ -10,9 +11,11 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict
 
+import torch
+
 LOGGER = logging.getLogger(__name__)
 
-_MODEL_NAME = "facebook/bart-large-mnli"
+_MODEL_NAME = "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli"
 _ENTAILMENT_THRESHOLD = 0.7
 _NLI_PIPELINE = None
 
@@ -30,13 +33,19 @@ def get_nli() -> Any:
         return _NLI_PIPELINE
 
     try:
-        from transformers import pipeline  # type: ignore
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline  # type: ignore
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        tokenizer = AutoTokenizer.from_pretrained(_MODEL_NAME)
+        model = AutoModelForSequenceClassification.from_pretrained(_MODEL_NAME)
+        model.to(device)
 
         _NLI_PIPELINE = pipeline(
             task="zero-shot-classification",
-            model=_MODEL_NAME,
+            model=model,
+            tokenizer=tokenizer,
         )
-        LOGGER.info("Loaded NLI model: %s", _MODEL_NAME)
+        LOGGER.info("Loaded NLI model: %s on %s", _MODEL_NAME, device)
     except Exception as exc:  # pragma: no cover - runtime/environment dependent
         LOGGER.warning("Unable to load NLI model '%s': %s", _MODEL_NAME, exc)
         _NLI_PIPELINE = None

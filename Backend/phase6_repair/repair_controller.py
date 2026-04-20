@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, Tuple
 
 from phase6_repair.rule_repair import repair_rules
-from phase6_repair.scope_repair import repair_scopes
+from phase6_repair.scope_repair import normalize_implication_closure_references, repair_scopes
 from validator.rule_validator import save_json_file, summarize_validation_phases, validate_proof
 
 MAX_ITERATIONS = 4
@@ -78,14 +78,16 @@ class RepairController:
         return proof, summary
 
     def _run_phase4(self, proof: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-        validated = validate_proof(proof)
+        normalized = normalize_implication_closure_references(proof)
+        validated = validate_proof(normalized)
         summary = summarize_validation_phases(validated)
         if summary.get("phase4_errors"):
-            repaired = repair_scopes(proof, validated)
+            repaired = repair_scopes(normalized, validated)
+            repaired = normalize_implication_closure_references(repaired)
             validated = validate_proof(repaired)
             summary = summarize_validation_phases(validated)
             return repaired, summary
-        return proof, summary
+        return normalized, summary
 
     def repair(self, proof_or_steps: Any) -> Dict[str, Any]:
         """Repair proof deterministically until Phase 3 and 4 pass or cap is reached."""
@@ -95,7 +97,6 @@ class RepairController:
         save_json_file(self.latest_validated_path, proof)
 
         current = proof
-        original_step_count = len(current.get("steps", [])) if isinstance(current.get("steps", []), list) else 0
         goal_formula = self._extract_goal_formula(current)
         previous_error: list[Dict[str, Any]] = []
 
@@ -132,23 +133,6 @@ class RepairController:
             # Re-evaluate Phase 4 after post-scope rule repairs.
             current, phase4_recheck_summary = self._run_phase4(current)
             _, phase4_passed = self._phase_status(phase4_recheck_summary)
-
-            # Strict no-new-lines policy for Phase 6.
-            steps = current.get("steps", []) if isinstance(current, dict) else []
-            if isinstance(steps, list) and len(steps) > original_step_count:
-                current["steps"] = steps[:original_step_count]
-                current, _ = self._run_phase3(current)
-                current, _ = self._run_phase4(current)
-
-            # If goal is already derived and structurally valid, end proof there.
-            if phase3_passed and phase4_passed and goal_formula:
-                truncated = self._truncate_after_first_goal(current, goal_formula)
-                truncated_validated = validate_proof(truncated)
-                truncated_summary = summarize_validation_phases(truncated_validated)
-                t_p3, t_p4 = self._phase_status(truncated_summary)
-                if t_p3 and t_p4:
-                    current = truncated
-                    phase3_passed, phase4_passed = True, True
 
             current["previous_error"] = previous_error
 

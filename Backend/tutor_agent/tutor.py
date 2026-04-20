@@ -73,6 +73,15 @@ def _first_balanced_json_object(text: str) -> str:
 	raise ValueError("Model output contained an unbalanced JSON object.")
 
 
+def _extract_goal_formula_from_problem(problem_text: str) -> str:
+	"""Extract the requested goal from a problem statement line like 'Goal: ...'."""
+	for raw_line in str(problem_text).splitlines():
+		line = raw_line.strip()
+		if line.lower().startswith("goal:"):
+			return line.split(":", 1)[1].strip()
+	return ""
+
+
 class TutorAgent:
 	"""Generate structured Fitch-style natural deduction proofs using Ollama."""
 
@@ -103,7 +112,9 @@ class TutorAgent:
 
 	def generate_proof(self) -> Dict[str, Any]:
 		"""Generate and validate a Fitch-style proof as structured JSON."""
-		prompt = self.build_prompt()
+		problem = self.load_problem()
+		template = self.load_prompt_template()
+		prompt = prepare_prompt(template, problem)
 
 		response = chat(
 			model=self.model,
@@ -118,6 +129,9 @@ class TutorAgent:
 
 		content = response["message"]["content"]
 		proof = self._normalize_proof_shape(_extract_json_object(content))
+		requested_goal_formula = _extract_goal_formula_from_problem(problem)
+		if requested_goal_formula:
+			proof["requested_goal_formula"] = requested_goal_formula
 		self._validate_proof_structure(proof)
 		return proof
 

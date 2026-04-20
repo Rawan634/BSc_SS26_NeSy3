@@ -3,14 +3,21 @@
 from __future__ import annotations
 
 import copy
+import json
 import logging
 import re
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from semantic_verifier.formula_to_text import FormulaNode, formula_to_text, parse_formula
 from semantic_verifier.nli_model_loader import check_entailment
 from semantic_verifier.rule_normalizer import normalize_rule_symbol
 from semantic_verifier.rule_semantic_templates import get_rule_template
+
+try:
+    from phase7_lean_runner import attempt_lean_repair
+except ImportError:
+    from phase7.phase7_lean_runner import attempt_lean_repair
 
 LOGGER = logging.getLogger(__name__)
 
@@ -53,6 +60,11 @@ def _match_disjunction_other_side(disjunction: FormulaNode, known: FormulaNode) 
 
 def _canonical(formula: str) -> str:
     return _normalize_formula(_node_to_formula(parse_formula(formula)))
+
+
+def _is_contradiction_formula_text(formula: str) -> bool:
+    normalized = _normalize_formula(formula)
+    return normalized in {"⊥", "False", "false"}
 
 
 def _format_formula_list(formulas: List[str]) -> str:
@@ -265,6 +277,17 @@ def _passes_rule_semantic_consistency(rule: str, conclusion_formula: str, refere
 
     if rule == "¬E":
         if len(referenced_formulas) < 1:
+            return False
+        if _is_contradiction_formula_text(conclusion_formula):
+            first_ref = parse_formula(referenced_formulas[0])
+            if first_ref.kind == "and" and first_ref.left is not None and first_ref.right is not None:
+                left_text = _canonical(_node_to_formula(first_ref.left))
+                right_text = _canonical(_node_to_formula(first_ref.right))
+                return left_text == _canonical(f"¬{right_text}") or right_text == _canonical(f"¬{left_text}")
+            if len(referenced_formulas) >= 2:
+                left_text = _canonical(referenced_formulas[0])
+                right_text = _canonical(referenced_formulas[1])
+                return left_text == _canonical(f"¬{right_text}") or right_text == _canonical(f"¬{left_text}")
             return False
         premise = parse_formula(referenced_formulas[0])
         conclusion = parse_formula(conclusion_formula)
@@ -682,6 +705,14 @@ def check_proof_semantics(
     warnings: List[str] = []
 
     checker = entailment_checker or check_entailment
+    requested_goal_formula = str(proof.get("requested_goal_formula", "")).strip()
+    if not requested_goal_formula:
+        for original_step in reversed(proof.get("steps", [])):
+            if not isinstance(original_step, dict):
+                continue
+            if bool(original_step.get("goal", False)) or str(original_step.get("rule", "")).strip().lower() == "goal":
+                requested_goal_formula = str(original_step.get("formula", "")).strip()
+                break
 
     for step in proof_with_semantics["steps"]:
         line = int(step.get("line", 0))
@@ -700,6 +731,21 @@ def check_proof_semantics(
             referenced_formulas,
             entailment_checker=checker,
         )
+
+        if not semantic_result.get("semantic_valid", False):
+            goal_formula = str(step.get("formula", "")).strip()
+            lean_result = attempt_lean_repair(referenced_formulas, goal_formula)
+
+            if bool(lean_result.get("repaired", False)):
+                semantic_result["semantic_valid"] = True
+                semantic_result["semantic_confidence"] = 1.0
+                semantic_result["semantic_error"] = ""
+                semantic_result["error_type"] = ""
+                semantic_result["lean_repair_applied"] = True
+                semantic_result["repair_method"] = "lean_formal_proof"
+                semantic_result["rule"] = "lean_derived"
+                semantic_result["lean_semantic_only"] = True
+
         step.update(semantic_result)
 
         if not semantic_result["semantic_valid"]:
@@ -712,6 +758,11 @@ def check_proof_semantics(
             warnings.append(f"Line {line}: {semantic_warning}")
 
         line_to_formula[line] = str(step.get("formula", ""))
+
+    output_path = Path(__file__).resolve().parent.parent / "outputs" / "phase7_repaired_proof.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as output_file:
+        json.dump(proof_with_semantics, output_file, indent=2)
 
     return {
         "proof": proof_with_semantics,

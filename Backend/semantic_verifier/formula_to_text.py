@@ -48,7 +48,7 @@ class _FormulaParser:
                 i += 1
                 continue
 
-            if char in {"(", ")", "¬", "∧", "∨", "→"}:
+            if char in {"(", ")", "¬", "∧", "∨", "→", "⊥"}:
                 tokens.append(char)
                 i += 1
                 continue
@@ -130,8 +130,12 @@ class _FormulaParser:
             self._consume()
             return node
 
-        if token in {")", "→", "∧", "∨"}:
+        if token in {")", "→", "∧", "∨", "⊥"}:
             raise ValueError(f"Unexpected token while parsing primary expression: {token}")
+
+        if token == "⊥":
+            self._consume()
+            return FormulaNode(kind="atom", value="⊥")
 
         self._consume()
         return FormulaNode(kind="atom", value=token)
@@ -156,6 +160,8 @@ def parse_formula(formula: str) -> FormulaNode:
 def _to_phrase(node: FormulaNode) -> str:
     """Convert an AST node into a sentence fragment without trailing period."""
     if node.kind == "atom":
+        if node.value in {"⊥", "False", "false"}:
+            return "a contradiction holds"
         return f"{node.value} is true"
 
     if node.kind == "not":

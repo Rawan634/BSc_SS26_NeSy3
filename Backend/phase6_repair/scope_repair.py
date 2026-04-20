@@ -79,6 +79,104 @@ def _insert_assumption_before(steps: List[Dict[str, Any]], idx: int, target_scop
     current["scope_level"] = max(0, target_scope)
 
 
+def _shift_references_after_insertion(steps: List[Dict[str, Any]], inserted_line: int) -> None:
+    """Shift step references forward after inserting a new line."""
+    for step in steps:
+        refs = step.get("references", [])
+        if not isinstance(refs, list):
+            continue
+
+        shifted: List[int] = []
+        changed = False
+        for ref in refs:
+            ref_value = _to_int(ref)
+            if ref_value is None:
+                continue
+            if ref_value >= inserted_line:
+                ref_value += 1
+                changed = True
+            shifted.append(ref_value)
+
+        if changed:
+            step["references"] = shifted
+
+
+def _normalize_formula_text(formula: Any) -> str:
+    return "".join(str(formula or "").split())
+
+
+def _split_implication(formula: str) -> Optional[tuple[str, str]]:
+    cleaned = str(formula or "").strip()
+    if "→" not in cleaned:
+        return None
+    left, right = cleaned.split("→", 1)
+    antecedent = left.strip()
+    consequent = right.strip()
+    if not antecedent or not consequent:
+        return None
+    return antecedent, consequent
+
+
+def _collect_accessible_formulas(steps: List[Dict[str, Any]], until_idx: int, max_scope: int) -> List[str]:
+    formulas: List[str] = []
+    for idx in range(until_idx):
+        step = steps[idx]
+        if _normalize_scope(step.get("scope_level", 0)) <= max_scope:
+            formulas.append(str(step.get("formula", "")).strip())
+    return formulas
+
+
+def _choose_support_formula(
+    source_formula: str,
+    accessible_formulas: List[str],
+) -> str:
+    parsed = _split_implication(source_formula)
+    if parsed is None:
+        return source_formula
+
+    antecedent, consequent = parsed
+    normalized_accessible = {_normalize_formula_text(item) for item in accessible_formulas}
+
+    # If consequent already appears in accessible lines, use it directly.
+    if _normalize_formula_text(consequent) in normalized_accessible:
+        return consequent
+
+    # If antecedent appears, consequent is immediately derivable from A→B and A.
+    if _normalize_formula_text(antecedent) in normalized_accessible:
+        return consequent
+
+    return source_formula
+
+
+def _insert_support_line_for_implication(
+    steps: List[Dict[str, Any]],
+    insert_idx: int,
+    support_scope: int,
+    source_line: int,
+) -> int:
+    """Insert a distinct support line so →I can cite two different lines."""
+    source_idx = source_line - 1
+    source_formula = ""
+    if 0 <= source_idx < len(steps):
+        source_formula = str(steps[source_idx].get("formula", "")).strip()
+
+    accessible_formulas = _collect_accessible_formulas(steps, insert_idx, support_scope)
+    support_formula = _choose_support_formula(source_formula, accessible_formulas)
+
+    support_step = {
+        "formula": support_formula,
+        "rule": "premise",
+        "references": [],
+        "scope_level": max(0, support_scope),
+        "fitch_notation": "",
+    }
+
+    steps.insert(insert_idx, support_step)
+    inserted_line = insert_idx + 1
+    _shift_references_after_insertion(steps, inserted_line)
+    return inserted_line
+
+
 def _insert_closure_before(steps: List[Dict[str, Any]], idx: int, outer_scope: int) -> bool:
     """In-place deterministic →I closure repair on the current line."""
     assumption_scope = outer_scope + 1
@@ -87,6 +185,10 @@ def _insert_closure_before(steps: List[Dict[str, Any]], idx: int, outer_scope: i
 
     if assumption_line is None or support_line is None:
         return False
+
+    if support_line == assumption_line:
+        support_line = _insert_support_line_for_implication(steps, idx, assumption_scope, assumption_line)
+        idx += 1
 
     assumption_formula = str(steps[assumption_line - 1].get("formula", "")).strip() if 0 < assumption_line <= len(steps) else "P"
     support_formula = str(steps[support_line - 1].get("formula", "")).strip() if 0 < support_line <= len(steps) else "P"
@@ -99,6 +201,38 @@ def _insert_closure_before(steps: List[Dict[str, Any]], idx: int, outer_scope: i
     if "→" not in current_formula:
         current["formula"] = f"{assumption_formula} → {support_formula}"
     return True
+
+
+def normalize_implication_closure_references(proof: Dict[str, Any]) -> Dict[str, Any]:
+    """Ensure →I closures cite two distinct lines when possible."""
+    repaired = copy.deepcopy(proof)
+    steps = repaired.get("steps", []) if isinstance(repaired, dict) else []
+    if not isinstance(steps, list):
+        return repaired
+
+    idx = 0
+    while idx < len(steps):
+        step = steps[idx]
+        if str(step.get("rule", "")).strip() == "→I":
+            refs = step.get("references", [])
+            if isinstance(refs, list) and len(refs) == 2:
+                assumption_line = _to_int(refs[0])
+                support_line = _to_int(refs[1])
+                if assumption_line is not None and support_line == assumption_line:
+                    assumption_idx = assumption_line - 1
+                    if 0 <= assumption_idx < len(steps):
+                        assumption_step = steps[assumption_idx]
+                        support_scope = _normalize_scope(assumption_step.get("scope_level", 0))
+                        inserted_line = _insert_support_line_for_implication(steps, idx, support_scope, assumption_line)
+                        closure_idx = idx + 1
+                        if closure_idx < len(steps):
+                            steps[closure_idx]["references"] = [assumption_line, inserted_line]
+                        idx = closure_idx + 1
+                        continue
+        idx += 1
+
+    _rebuild_lines_and_fitch(steps)
+    return repaired
 
 
 def _insert_intermediate_closures(steps: List[Dict[str, Any]], idx: int, from_scope: int, to_scope: int) -> None:
@@ -208,6 +342,58 @@ def _derive_scope_error_type(validation: Dict[str, Any]) -> Optional[str]:
     return None
 
 
+def _collect_open_assumptions(steps: List[Dict[str, Any]]) -> List[int]:
+    """Return assumption lines that are not discharged by any closure step."""
+    assumption_lines: List[int] = []
+    discharged: Set[int] = set()
+
+    for idx, step in enumerate(steps):
+        line_number = _to_int(step.get("line")) or (idx + 1)
+        rule_name = str(step.get("rule", "")).strip().lower()
+        if rule_name == "assumption":
+            assumption_lines.append(line_number)
+            continue
+
+        if rule_name not in {"→i", "¬i"}:
+            continue
+
+        refs = step.get("references", [])
+        if isinstance(refs, list) and refs:
+            assumption_ref = _to_int(refs[0])
+            if assumption_ref is not None:
+                discharged.add(assumption_ref)
+
+    return [line for line in assumption_lines if line not in discharged]
+
+
+def _append_implication_closure_for_open_assumption(steps: List[Dict[str, Any]], assumption_line: int) -> None:
+    """Append a closing →I step for an assumption that remains open."""
+    assumption_idx = assumption_line - 1
+    if not (0 <= assumption_idx < len(steps)):
+        return
+
+    assumption_step = steps[assumption_idx]
+    assumption_scope = _normalize_scope(assumption_step.get("scope_level", 0))
+    outer_scope = max(0, assumption_scope - 1)
+    support_line = _latest_line_for_scope(steps, len(steps), assumption_scope)
+    if support_line is None:
+        support_line = assumption_line
+
+    assumption_formula = str(assumption_step.get("formula", "")).strip() or "P"
+    support_formula = str(steps[support_line - 1].get("formula", "")).strip() if 0 < support_line <= len(steps) else "P"
+
+    steps.append(
+        {
+            "line": len(steps) + 1,
+            "formula": f"({assumption_formula}) → ({support_formula})",
+            "rule": "→I",
+            "references": [assumption_line, support_line],
+            "scope_level": outer_scope,
+            "fitch_notation": "",
+        }
+    )
+
+
 def repair_scopes(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dict[str, Any]:
     """Repair Phase 4 scope errors deterministically, changing only failing lines."""
     repaired = copy.deepcopy(proof)
@@ -264,4 +450,9 @@ def repair_scopes(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dic
 
     _restore_goal_line_if_needed(steps, goal_formula, original_goal_line)
     _rebuild_lines_and_fitch(steps)
+
+    open_assumptions = _collect_open_assumptions(steps)
+    while open_assumptions:
+        _append_implication_closure_for_open_assumption(steps, open_assumptions.pop())
+        _rebuild_lines_and_fitch(steps)
     return repaired
