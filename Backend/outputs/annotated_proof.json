@@ -1,0 +1,104 @@
+{
+  "steps": [
+    {
+      "line": 1,
+      "formula": "P → Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "1. P → Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "short_explanation": "This line introduces a given premise.",
+      "detailed_explanation": "P → Q is provided directly as part of the problem statement.",
+      "explanation_example": [],
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": "",
+      "example": []
+    },
+    {
+      "line": 2,
+      "formula": "P",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "2. P",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "short_explanation": "This line introduces a given premise.",
+      "detailed_explanation": "P is provided directly as part of the problem statement.",
+      "explanation_example": [],
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": "",
+      "example": []
+    },
+    {
+      "line": 3,
+      "formula": "Q",
+      "rule": "→E",
+      "references": [
+        1,
+        2
+      ],
+      "scope_level": 0,
+      "fitch_notation": "3. Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "short_explanation": "Apply Modus Ponens to derive conclusion.",
+      "detailed_explanation": "From the implication in line 1 and its antecedent in line 2, we infer the consequent Q.",
+      "explanation_example": [
+        "1. p → q",
+        "2. p",
+        "3. q"
+      ],
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": "",
+      "example": [
+        "1. p → q",
+        "2. p",
+        "3. q"
+      ]
+    }
+  ],
+  "requested_goal_formula": "Q",
+  "previous_error": [
+    {
+      "iteration": 1,
+      "phase3_errors": [],
+      "phase4_errors": []
+    }
+  ],
+  "phase": "phase8",
+  "annotation_metadata": {
+    "total_steps": 3,
+    "annotated_with_explanations": true
+  },
+  "hover_metadata": {
+    "total_steps": 3,
+    "steps_with_corrections": 0,
+    "repair_iterations": 1
+  }
+}

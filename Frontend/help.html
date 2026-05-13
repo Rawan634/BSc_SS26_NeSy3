@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Logic Tutor Help</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Guide</p>
+        <h1>How to use AI Logic Tutor</h1>
+        <p class="subtitle">A quick walkthrough for AI Tutor Mode and Verified Proof Mode.</p>
+      </div>
+      <button class="help-button" type="button" onclick="window.location.href='index.html'">Back to Tutor</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel mode-panel">
+        <div class="mode-card active" style="display:grid;">
+          <div class="field-group">
+            <label>AI Tutor Mode</label>
+            <div class="response-box">
+              <p class="placeholder">Use this mode for general logic questions. Type a question and click Ask Tutor. The app sends your request to POST /ask_ai and displays the explanation in the response panel.</p>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Verified Proof Mode</label>
+            <div class="response-box">
+              <p class="placeholder">Enter premises one per line and a single goal formula. Click Solve Verified Proof to send the request to POST /solve_verified. The returned proof is rendered as Fitch-style lines.</p>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Required Input Format</label>
+            <div class="response-box">
+              <p class="placeholder">Premises should be plain logic statements such as P → Q or ¬R. The goal should be the formula you want to prove, such as Q or ¬P.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="info-card">
+          <h2>Hover Explanations</h2>
+          <p>Hover any proof line to see the short explanation for the rule used on that line.</p>
+        </div>
+        <div class="info-card">
+          <h2>Click Expansion</h2>
+          <p>Click a proof line to expand the full explanation, example usage, and any correction history.</p>
+        </div>
+        <div class="info-card">
+          <h2>Corrected Lines</h2>
+          <p>When the backend repairs a line, it is visually highlighted and the original error message is shown inside the expanded details.</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>

@@ -34,11 +34,11 @@
     },
     {
       "line": 3,
-      "formula": "R \u2192 S",
+      "formula": "\u00acR",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "3. R \u2192 S",
+      "fitch_notation": "3. \u00acR",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -50,22 +50,6 @@
     },
     {
       "line": 4,
-      "formula": "\u00acS",
-      "rule": "premise",
-      "references": [],
-      "scope_level": 0,
-      "fitch_notation": "4. \u00acS",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
-    },
-    {
-      "line": 5,
       "formula": "P \u2192 R",
       "rule": "HS",
       "references": [
@@ -73,7 +57,28 @@
         2
       ],
       "scope_level": 0,
-      "fitch_notation": "5. P \u2192 R",
+      "fitch_notation": "4. P \u2192 R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 5,
+      "formula": "\u00acQ",
+      "rule": "MT",
+      "references": [
+        2,
+        3
+      ],
+      "scope_level": 0,
+      "fitch_notation": "5. \u00acQ",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -87,56 +92,14 @@
     },
     {
       "line": 6,
-      "formula": "Q \u2192 S",
-      "rule": "HS",
-      "references": [
-        2,
-        3
-      ],
-      "scope_level": 0,
-      "fitch_notation": "6. Q \u2192 S",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 7,
-      "formula": "\u00acR",
-      "rule": "MT",
-      "references": [
-        3,
-        4
-      ],
-      "scope_level": 0,
-      "fitch_notation": "7. \u00acR",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 8,
       "formula": "\u00acP",
       "rule": "MT",
       "references": [
-        5,
-        7
+        4,
+        3
       ],
       "scope_level": 0,
-      "fitch_notation": "8. \u00acP",
+      "fitch_notation": "6. \u00acP",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -150,13 +113,13 @@
     }
   ],
   "requested_goal_formula": "\u00acP",
+  "lean_goal_repair_applied": true,
+  "lean_goal_repair_method": "primitive_synthesis",
   "previous_error": [
     {
       "iteration": 1,
       "phase3_errors": [],
       "phase4_errors": []
     }
-  ],
-  "lean_goal_repair_applied": true,
-  "lean_goal_repair_method": "lean_formal_proof"
+  ]
 }

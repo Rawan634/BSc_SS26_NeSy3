@@ -26,7 +26,7 @@ ENTAILMENT_THRESHOLD = 0.7
 # If False, missing templates are treated as semantic failures.
 ALLOW_UNVERIFIED_RULES = True
 
-_SYMBOLIC_SHORT_CIRCUIT_RULES = {"→E", "→I", "¬I", "¬E", "∧E", "∧I", "∨I", "∨E", "MT", "HS", "DS"}
+_SYMBOLIC_SHORT_CIRCUIT_RULES = {"→E", "→I", "¬I", "¬E", "∧E", "∧I", "∨I", "∨E", "MT", "HS", "DS", "⊥E"}
 
 
 def _normalize_formula(formula: str) -> str:
@@ -298,6 +298,25 @@ def _passes_rule_semantic_consistency(rule: str, conclusion_formula: str, refere
             return False
         return _canonical(_node_to_formula(inner.right)) == _canonical(_node_to_formula(conclusion))
 
+    if rule == "⊥E":
+        # If the referenced formula is an explicit falsum '⊥' or a conjunction of a formula and its negation,
+        # then any conclusion is allowed (ex falso). Prefer a lightweight symbolic check here.
+        if not referenced_formulas:
+            return False
+        ref = referenced_formulas[0]
+        if _is_contradiction_formula_text(ref):
+            return True
+        try:
+            node = parse_formula(ref)
+            if node.kind == "and" and node.left is not None and node.right is not None:
+                left_text = _canonical(_node_to_formula(node.left))
+                right_text = _canonical(_node_to_formula(node.right))
+                if left_text == _canonical(f"¬{right_text}") or right_text == _canonical(f"¬{left_text}"):
+                    return True
+        except Exception:
+            return False
+        return False
+
     if rule == "∧E":
         if len(referenced_formulas) < 1:
             return False
@@ -481,6 +500,11 @@ def _build_template_bindings(rule: str, conclusion_formula: str, referenced_form
             "p": _to_symbol_text(left),
             "q": _to_symbol_text(right),
         }
+
+    if rule == "⊥E":
+        # Bind the conclusion as the template variable {r} for the ⊥E template.
+        conclusion_node = parse_formula(conclusion_formula)
+        return {"r": _to_symbol_text(conclusion_node)}
 
     if rule == "∨I":
         known = parse_formula(referenced_formulas[0])

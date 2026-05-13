@@ -1,0 +1,281 @@
+{
+  "steps": [
+    {
+      "line": 1,
+      "formula": "P → Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "1. P → Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "short_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "detailed_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "premise",
+      "rule_display": "premise",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
+    },
+    {
+      "line": 2,
+      "formula": "P → ¬Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "2. P → ¬Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "short_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "detailed_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "premise",
+      "rule_display": "premise",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
+    },
+    {
+      "line": 3,
+      "formula": "P",
+      "rule": "assumption",
+      "references": [],
+      "scope_level": 1,
+      "fitch_notation": "  | 3. P",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "short_explanation": "Temporary assumption introduced.",
+      "detailed_explanation": "Rule Used:\nAssumption\n\nWhy this rule works:\nIn a subproof, we can temporarily assume a statement and later discharge that assumption.\n\nWhy we used it here:\nWe temporarily assume P to explore what logically follows inside this subproof.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "assumption",
+      "rule_display": "assumption",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
+    },
+    {
+      "line": 4,
+      "formula": "Q",
+      "rule": "→E",
+      "references": [
+        1,
+        3
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 4. Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "short_explanation": "Apply Modus Ponens to derive Q.",
+      "detailed_explanation": "Rule Used:\nModus Ponens\n\nWhy this rule works:\nIf P implies Q, and P is true, then Q must also be true.\n\nWhy we used it here:\nLine 1 states that P → Q.\nLine 3 confirms that P.\nTherefore, Q must be true.\n\nWhat this step achieves:\nThis combines P → Q with P.\nSo we can state Q, which moves us closer to the goal.",
+      "explanation_example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "rule_full_name": "Modus Ponens",
+      "rule_display": "→E (Modus Ponens)",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
+    },
+    {
+      "line": 5,
+      "formula": "¬Q",
+      "rule": "→E",
+      "references": [
+        2,
+        3
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 5. ¬Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "short_explanation": "Apply Modus Ponens to derive ¬Q.",
+      "detailed_explanation": "Rule Used:\nModus Ponens\n\nWhy this rule works:\nIf P implies Q, and P is true, then Q must also be true.\n\nWhy we used it here:\nLine 2 states that P → ¬Q.\nLine 3 confirms that P.\nTherefore, ¬Q must be true.\n\nWhat this step achieves:\nThis combines P → ¬Q with P.\nSo we can state ¬Q, which moves us closer to the goal.",
+      "explanation_example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "rule_full_name": "Modus Ponens",
+      "rule_display": "→E (Modus Ponens)",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
+    },
+    {
+      "line": 6,
+      "formula": "(Q) ∧ (¬Q)",
+      "rule": "∧I",
+      "references": [
+        4,
+        5
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 6. (Q) ∧ (¬Q)",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "short_explanation": "Apply Conjunction to derive (Q) ∧ (¬Q).",
+      "detailed_explanation": "Rule Used:\nConjunction\n\nWhy this rule works:\nConjunction allows us to derive a conclusion from the referenced statements when its logical pattern is matched.\n\nWhy we used it here:\nLine 4 shows Q.\nLine 5 shows ¬Q.\nTherefore, (Q) ∧ (¬Q) follows by Conjunction.\n\nWhat this step achieves:\nThis derives (Q) ∧ (¬Q) from earlier lines.\nWe can now use this result in the next proof step.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "Conjunction",
+      "rule_display": "∧I (Conjunction)",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
+    },
+    {
+      "line": 7,
+      "formula": "⊥",
+      "rule": "¬E",
+      "references": [
+        6
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 7. ⊥",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "short_explanation": "Apply Negation Elimination to derive ⊥.",
+      "detailed_explanation": "Rule Used:\nNegation Elimination\n\nWhy this rule works:\nNegation Elimination allows us to derive a conclusion from the referenced statements when its logical pattern is matched.\n\nWhy we used it here:\nLine 6 shows (Q) ∧ (¬Q).\nTherefore, ⊥ follows by Negation Elimination.\n\nWhat this step achieves:\nThis derives ⊥ from earlier lines.\nWe can now use this result in the next proof step.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "Negation Elimination",
+      "rule_display": "¬E (Negation Elimination)",
+      "was_corrected": true,
+      "original_errors": [
+        "Line 7: Rule '⊥E' (Falsum Elimination) requires 1 reference(s) matching ⊥ and concludes any formula r. Condition failed: the referenced line must be a contradiction such as ⊥ or a formula and its negation. Referenced lines: line 6 (rule '∧I', formula '(Q) ∧ (¬Q)'). Why invalid: line 6 is '(Q) ∧ (¬Q)', which is not contradictory."
+      ],
+      "repair_action": "Fixed: Rule '⊥E' (Falsum Elimination) requires 1 reference(s) matching ⊥ and concludes any formula r. Condition failed: the referenced line must be a contradiction such as ⊥ or a formula and its negation. Referenced lines: line 6 (rule '∧I', formula '(Q) ∧ (¬Q)'). Why invalid: line 6 is '(Q) ∧ (¬Q)', which is not contradictory."
+    },
+    {
+      "line": 8,
+      "formula": "¬P",
+      "rule": "¬I",
+      "references": [
+        3,
+        7
+      ],
+      "scope_level": 0,
+      "fitch_notation": "8. ¬P",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "short_explanation": "Apply Negation Introduction to derive ¬P.",
+      "detailed_explanation": "Rule Used:\nNegation Introduction\n\nWhy this rule works:\nNegation Introduction allows us to derive a conclusion from the referenced statements when its logical pattern is matched.\n\nWhy we used it here:\nLine 3 shows P.\nLine 7 shows ⊥.\nTherefore, ¬P follows by Negation Introduction.\n\nWhat this step achieves:\nThis derives ¬P from earlier lines.\nWe can now use this result in the next proof step.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "Negation Introduction",
+      "rule_display": "¬I (Negation Introduction)",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
+    }
+  ],
+  "requested_goal_formula": "¬P",
+  "previous_error": [
+    {
+      "iteration": 1,
+      "phase3_errors": [
+        "Line 7: Rule '⊥E' (Falsum Elimination) requires 1 reference(s) matching ⊥ and concludes any formula r. Condition failed: the referenced line must be a contradiction such as ⊥ or a formula and its negation. Referenced lines: line 6 (rule '∧I', formula '(Q) ∧ (¬Q)'). Why invalid: line 6 is '(Q) ∧ (¬Q)', which is not contradictory."
+      ],
+      "phase4_errors": []
+    }
+  ],
+  "lean_goal_repair_applied": true,
+  "lean_goal_repair_method": "lean_formal_proof",
+  "phase": "phase8",
+  "annotation_metadata": {
+    "total_steps": 8,
+    "annotated_with_explanations": true
+  },
+  "overall_proof_strategy": "First, we use Modus Ponens to derive Q. Next, we use Modus Ponens to derive ¬Q. Finally, we derive (Q) ∧ (¬Q), which matches the goal ¬P. These results combine to keep the proof moving directly toward the goal.",
+  "hover_metadata": {
+    "total_steps": 8,
+    "steps_with_corrections": 1,
+    "repair_iterations": 1
+  }
+}

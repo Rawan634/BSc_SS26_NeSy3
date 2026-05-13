@@ -186,15 +186,21 @@ def _insert_closure_before(steps: List[Dict[str, Any]], idx: int, outer_scope: i
     if assumption_line is None or support_line is None:
         return False
 
+    # If the support and assumption are the same line, insert a distinct support line.
     if support_line == assumption_line:
-        support_line = _insert_support_line_for_implication(steps, idx, assumption_scope, assumption_line)
-        idx += 1
+        inserted_line = _insert_support_line_for_implication(steps, idx, assumption_scope, assumption_line)
+        # After inserting, recompute the assumption and support line numbers
+        # to ensure subsequent references point to the correct lines.
+        assumption_line = _latest_assumption_in_scope(steps, idx + 1, assumption_scope) or assumption_line
+        support_line = inserted_line
 
+    # Recompute formulas from the (possibly updated) line numbers
     assumption_formula = str(steps[assumption_line - 1].get("formula", "")).strip() if 0 < assumption_line <= len(steps) else "P"
     support_formula = str(steps[support_line - 1].get("formula", "")).strip() if 0 < support_line <= len(steps) else "P"
 
     current = steps[idx]
     current["rule"] = "→I"
+    # Use the recomputed numeric refs so they remain valid after insertions.
     current["references"] = [assumption_line, support_line]
     current["scope_level"] = max(0, outer_scope)
     current_formula = str(current.get("formula", "")).strip()
@@ -280,6 +286,14 @@ def _repair_assumption_scope_mismatch(steps: List[Dict[str, Any]], idx: int) -> 
     previous_scope = _normalize_scope(steps[idx - 1].get("scope_level", 0)) if idx > 0 else 0
 
     # In-place only closure coercion.
+    current_rule = str(steps[idx].get("rule", "")).strip()
+    current_formula = str(steps[idx].get("formula", "")).strip()
+    if current_rule == "¬I" or current_formula.startswith("¬"):
+        assumption_line = _latest_assumption_in_scope(steps, idx, current_scope + 1)
+        if assumption_line is not None:
+            _insert_negation_closure_before_index(steps, idx, assumption_line)
+            return
+
     if previous_scope == 1 and current_scope == 0:
         _insert_closure_before(steps, idx, 0)
         return
@@ -311,8 +325,8 @@ def _restore_goal_line_if_needed(
     if last_formula == goal_formula:
         return
 
-    restored = copy.deepcopy(original_goal_line)
-    steps[-1] = restored
+    if not last_formula:
+        steps[-1]["formula"] = goal_formula
 
 
 def _derive_scope_error_type(validation: Dict[str, Any]) -> Optional[str]:
@@ -354,7 +368,7 @@ def _collect_open_assumptions(steps: List[Dict[str, Any]]) -> List[int]:
             assumption_lines.append(line_number)
             continue
 
-        if rule_name not in {"→i", "¬i"}:
+        if rule_name not in {"→i", "¬i", "→I", "¬I"}:
             continue
 
         refs = step.get("references", [])
@@ -364,6 +378,31 @@ def _collect_open_assumptions(steps: List[Dict[str, Any]]) -> List[int]:
                 discharged.add(assumption_ref)
 
     return [line for line in assumption_lines if line not in discharged]
+
+
+def _find_contradiction_line_in_scope(steps: List[Dict[str, Any]], assumption_line: int, until_idx: int) -> Optional[int]:
+    assumption_idx = assumption_line - 1
+    if not (0 <= assumption_idx < len(steps)):
+        return None
+
+    assumption_formula = str(steps[assumption_idx].get("formula", "")).strip()
+    if not assumption_formula:
+        return None
+
+    negated_assumption = f"¬{assumption_formula}"
+
+    for idx in range(until_idx - 1, assumption_idx, -1):
+        step = steps[idx]
+        formula = str(step.get("formula", "")).strip()
+        if not formula:
+            continue
+        if formula == "⊥":
+            return _to_int(step.get("line")) or (idx + 1)
+        normalized = formula.replace(" ", "")
+        if assumption_formula.replace(" ", "") in normalized and negated_assumption.replace(" ", "") in normalized:
+            return _to_int(step.get("line")) or (idx + 1)
+
+    return None
 
 
 def _append_implication_closure_for_open_assumption(steps: List[Dict[str, Any]], assumption_line: int) -> None:
@@ -394,6 +433,69 @@ def _append_implication_closure_for_open_assumption(steps: List[Dict[str, Any]],
     )
 
 
+def _insert_negation_closure_before_index(steps: List[Dict[str, Any]], idx: int, assumption_line: int) -> Optional[int]:
+    """Insert a ¬I closure step before index `idx` that discharges `assumption_line`."""
+    assumption_idx = assumption_line - 1
+    if not (0 <= assumption_idx < len(steps)):
+        return None
+
+    assumption_step = steps[assumption_idx]
+    assumption_scope = _normalize_scope(assumption_step.get("scope_level", 0))
+    contradiction_line = _find_contradiction_line_in_scope(steps, assumption_line, idx)
+    if contradiction_line is None:
+        contradiction_line = _latest_line_for_scope(steps, idx, assumption_scope)
+    if contradiction_line is None:
+        return None
+
+    assumption_formula = str(assumption_step.get("formula", "")).strip() or "P"
+    closure_step = {
+        "formula": f"¬({assumption_formula})",
+        "rule": "¬I",
+        "references": [assumption_line, contradiction_line],
+        "scope_level": max(0, assumption_scope - 1),
+        "fitch_notation": "",
+    }
+
+    steps.insert(idx, closure_step)
+    inserted_line = idx + 1
+    _shift_references_after_insertion(steps, inserted_line)
+    return inserted_line
+
+
+def _insert_closure_step_before_index(steps: List[Dict[str, Any]], idx: int, assumption_line: int) -> Optional[int]:
+    """Insert a →I closure step before index `idx` that discharges `assumption_line`.
+    Returns the inserted line number or None on failure."""
+    assumption_idx = assumption_line - 1
+    if not (0 <= assumption_idx < len(steps)):
+        return None
+
+    assumption_step = steps[assumption_idx]
+    assumption_scope = _normalize_scope(assumption_step.get("scope_level", 0))
+    support_line = _latest_line_for_scope(steps, idx, assumption_scope)
+    if support_line is None:
+        support_line = assumption_line
+
+    assumption_formula = str(assumption_step.get("formula", "")).strip() or "P"
+    support_formula = (
+        str(steps[support_line - 1].get("formula", "")).strip()
+        if 0 < support_line <= len(steps)
+        else "P"
+    )
+
+    closure_step = {
+        "formula": f"({assumption_formula}) → ({support_formula})",
+        "rule": "→I",
+        "references": [assumption_line, support_line],
+        "scope_level": max(0, assumption_scope - 1),
+        "fitch_notation": "",
+    }
+
+    steps.insert(idx, closure_step)
+    inserted_line = idx + 1
+    _shift_references_after_insertion(steps, inserted_line)
+    return inserted_line
+
+
 def repair_scopes(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dict[str, Any]:
     """Repair Phase 4 scope errors deterministically, changing only failing lines."""
     repaired = copy.deepcopy(proof)
@@ -417,7 +519,40 @@ def repair_scopes(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dic
     _rebuild_lines_and_fitch(steps)
 
     idx = 0
+    max_iterations = 100
+    iterations = 0
     while idx < len(steps) and idx < len(validated_steps):
+        iterations += 1
+        if iterations > max_iterations:
+            break
+        # If we see two consecutive assumption openings at the same scope,
+        # insert a closure for the previous assumption before the new one.
+        if idx > 0:
+            curr_step = steps[idx]
+            prev_step = steps[idx - 1]
+            try:
+                curr_rule = str(curr_step.get("rule", "")).strip().lower()
+                prev_rule = str(prev_step.get("rule", "")).strip().lower()
+            except Exception:
+                curr_rule = prev_rule = ""
+
+            if curr_rule == "assumption" and prev_rule == "assumption":
+                curr_scope = _normalize_scope(curr_step.get("scope_level", 0))
+                prev_scope = _normalize_scope(prev_step.get("scope_level", 0))
+                if curr_scope == prev_scope:
+                    # close previous assumption before opening this one
+                    assumption_line = _to_int(prev_step.get("line")) or idx
+                    try:
+                        inserted = _insert_closure_step_before_index(steps, idx, assumption_line)
+                        if inserted:
+                            # rebuild and advance past the inserted closure
+                            _rebuild_lines_and_fitch(steps)
+                            idx += 1
+                            # also need to keep validated_steps aligned by inserting a dummy validated step
+                            validated_steps.insert(idx - 1, {"validation": {"valid": False}})
+                    except Exception:
+                        pass
+
         validated_step = validated_steps[idx]
         validation = validated_step.get("validation", {}) if isinstance(validated_step, dict) else {}
         if not isinstance(validation, dict) or bool(validation.get("valid", True)):
@@ -425,6 +560,43 @@ def repair_scopes(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dic
             continue
 
         error_type = _derive_scope_error_type(validation)
+        # Handle missing-reference or earlier-proof-lines errors by redirecting invalid refs
+        error_text = str(validation.get("error", "")).lower()
+        if "does not exist in previous steps" in error_text or "requires earlier proof lines" in error_text:
+            # attempt to redirect invalid references to accessible lines first
+            try:
+                _redirect_invalid_scope_references(steps, idx)
+            except Exception:
+                pass
+            # If this is an implication closure with missing refs, try to coerce a closure
+            current_rule = str(steps[idx].get("rule", "")).strip()
+            if current_rule == "→I":
+                prev_scope = _normalize_scope(steps[idx - 1].get("scope_level", 0)) if idx > 0 else 0
+                try:
+                    _insert_closure_before(steps, idx, prev_scope)
+                except Exception:
+                    pass
+            # recompute lines/fitch before continuing
+            _rebuild_lines_and_fitch(steps)
+            # re-run validation mapping
+            validation = validated_steps[idx].get("validation", {}) if isinstance(validated_steps[idx], dict) else {}
+            error_type = _derive_scope_error_type(validation)
+        # If validator reports an assumption was not discharged before returning to outer scope,
+        # proactively insert closures for any earlier open assumptions that end before this idx.
+        if "was not discharged" in error_text or "was not discharged before" in error_text:
+            try:
+                open_assumps = _collect_open_assumptions(steps)
+                # Insert closures for assumptions that appear before current idx
+                for a_line in list(open_assumps):
+                    if a_line < (idx + 1):
+                        inserted = _insert_closure_step_before_index(steps, idx, a_line)
+                        if inserted:
+                            _rebuild_lines_and_fitch(steps)
+                            # keep validated_steps aligned by inserting a placeholder invalidated step
+                            validated_steps.insert(idx, {"validation": {"valid": False}})
+                            idx += 1
+            except Exception:
+                pass
         if error_type is None:
             idx += 1
             continue
@@ -450,9 +622,4 @@ def repair_scopes(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dic
 
     _restore_goal_line_if_needed(steps, goal_formula, original_goal_line)
     _rebuild_lines_and_fitch(steps)
-
-    open_assumptions = _collect_open_assumptions(steps)
-    while open_assumptions:
-        _append_implication_closure_for_open_assumption(steps, open_assumptions.pop())
-        _rebuild_lines_and_fitch(steps)
     return repaired

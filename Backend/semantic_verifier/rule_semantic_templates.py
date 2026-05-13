@@ -55,6 +55,10 @@ _RULE_TEMPLATES: Dict[str, RuleTemplate] = {
         "Either {p} or {q} is true, and if {p} is true then {r} is true, and if {q} is true then {r} is true",
         "{r} is true",
     ),
+    "⊥E": (
+        "A contradiction holds",
+        "{r} is true",
+    ),
 }
 
 

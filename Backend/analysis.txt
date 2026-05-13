@@ -1,0 +1,2 @@
+C 1: goal=S, steps=76, AND-E=13, tautologies=17
+C 4: goal=¬P, steps=38, AND-E=7, tautologies=0

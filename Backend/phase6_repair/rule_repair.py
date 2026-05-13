@@ -6,6 +6,7 @@ import copy
 from typing import Any, Dict, List, Optional, Set
 
 from validator.rule_validator import get_rule_lookup
+from phase6_repair.semantic_repair import check_formula_type_compatibility
 
 PHASE3_ERROR_TYPES: Set[str] = {
     "UNKNOWN_RULE",
@@ -361,6 +362,132 @@ def _extract_disjunction_parts(formula: Any) -> Optional[List[str]]:
     return [left, right]
 
 
+def _normalize_formula(formula: Any) -> str:
+    return "".join(str(formula or "").split())
+
+
+def _split_implication(formula: Any) -> Optional[List[str]]:
+    cleaned = str(formula or "").strip()
+    if "→" not in cleaned:
+        return None
+    left, right = cleaned.split("→", 1)
+    left = left.strip().lstrip("(").rstrip(")").strip()
+    right = right.strip().lstrip("(").rstrip(")").strip()
+    if not left or not right:
+        return None
+    return [left, right]
+
+
+def _build_disjunction_cases_proof_if_possible(proof: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+    """Build a deterministic proof for goals of the shape R ∨ S from premises A∨B, A→R, B→S.
+
+    This is narrowly scoped and only used when the pattern is present exactly.
+    """
+    if not isinstance(proof, dict):
+        return None
+
+    steps = proof.get("steps", [])
+    if not isinstance(steps, list) or not steps:
+        return None
+
+    goal_formula = str(proof.get("requested_goal_formula", "") or "").strip()
+    goal_parts = _extract_disjunction_parts(goal_formula)
+    if goal_parts is None:
+        return None
+
+    premises: List[str] = []
+    for step in steps:
+        if not isinstance(step, dict):
+            continue
+        if str(step.get("rule", "")).strip().lower() != "premise":
+            continue
+        premises.append(str(step.get("formula", "")).strip())
+
+    disj_formula: Optional[str] = None
+    disj_parts: Optional[List[str]] = None
+    imp_left: Optional[str] = None
+    imp_right: Optional[str] = None
+
+    for p in premises:
+        parts = _extract_disjunction_parts(p)
+        if parts is not None:
+            disj_formula = p
+            disj_parts = parts
+            break
+
+    if disj_formula is None or disj_parts is None:
+        return None
+
+    # Find A→R and B→S from available premises where R/S are goal disjuncts.
+    a = disj_parts[0]
+    b = disj_parts[1]
+    r = goal_parts[0]
+    s = goal_parts[1]
+
+    a_to_r: Optional[str] = None
+    b_to_s: Optional[str] = None
+
+    for p in premises:
+        imp = _split_implication(p)
+        if imp is None:
+            continue
+        ant, cons = imp
+        if _normalize_formula(ant) == _normalize_formula(a) and _normalize_formula(cons) == _normalize_formula(r):
+            a_to_r = p
+        if _normalize_formula(ant) == _normalize_formula(b) and _normalize_formula(cons) == _normalize_formula(s):
+            b_to_s = p
+
+    # Also accept swapped goal ordering if needed.
+    if a_to_r is None or b_to_s is None:
+        alt_r = goal_parts[1]
+        alt_s = goal_parts[0]
+        a_to_r = None
+        b_to_s = None
+        for p in premises:
+            imp = _split_implication(p)
+            if imp is None:
+                continue
+            ant, cons = imp
+            if _normalize_formula(ant) == _normalize_formula(a) and _normalize_formula(cons) == _normalize_formula(alt_r):
+                a_to_r = p
+            if _normalize_formula(ant) == _normalize_formula(b) and _normalize_formula(cons) == _normalize_formula(alt_s):
+                b_to_s = p
+        if a_to_r is not None and b_to_s is not None:
+            imp_left = alt_r
+            imp_right = alt_s
+
+    if imp_left is None or imp_right is None:
+        imp_left = goal_parts[0]
+        imp_right = goal_parts[1]
+
+    if a_to_r is None or b_to_s is None:
+        return None
+
+    goal_disj = f"{imp_left} ∨ {imp_right}"
+
+    # Construct a valid Fitch-style disjunction elimination proof with closures.
+    new_steps: List[Dict[str, Any]] = [
+        {"line": 1, "formula": disj_formula, "rule": "premise", "references": [], "scope_level": 0, "fitch_notation": ""},
+        {"line": 2, "formula": a_to_r, "rule": "premise", "references": [], "scope_level": 0, "fitch_notation": ""},
+        {"line": 3, "formula": b_to_s, "rule": "premise", "references": [], "scope_level": 0, "fitch_notation": ""},
+        {"line": 4, "formula": a, "rule": "assumption", "references": [], "scope_level": 1, "fitch_notation": ""},
+        {"line": 5, "formula": imp_left, "rule": "→E", "references": [2, 4], "scope_level": 1, "fitch_notation": ""},
+        {"line": 6, "formula": goal_disj, "rule": "∨I", "references": [5], "scope_level": 1, "fitch_notation": ""},
+        {"line": 7, "formula": f"{a} → {goal_disj}", "rule": "→I", "references": [4, 6], "scope_level": 0, "fitch_notation": ""},
+        {"line": 8, "formula": b, "rule": "assumption", "references": [], "scope_level": 1, "fitch_notation": ""},
+        {"line": 9, "formula": imp_right, "rule": "→E", "references": [3, 8], "scope_level": 1, "fitch_notation": ""},
+        {"line": 10, "formula": goal_disj, "rule": "∨I", "references": [9], "scope_level": 1, "fitch_notation": ""},
+        {"line": 11, "formula": f"{b} → {goal_disj}", "rule": "→I", "references": [8, 10], "scope_level": 0, "fitch_notation": ""},
+        {"line": 12, "formula": goal_disj, "rule": "∨E", "references": [1, 7, 11], "scope_level": 0, "fitch_notation": ""},
+    ]
+
+    for i, s_step in enumerate(new_steps, start=1):
+        s_step["line"] = i
+        s_step["fitch_notation"] = _rebuild_fitch(s_step, i)
+
+    return new_steps
+
+
 def _build_placeholder_implication(antecedent: str, consequent: str) -> str:
     return f"{antecedent} → {consequent}"
 
@@ -372,9 +499,30 @@ def _repair_or_elimination(
     current_scope: int,
     candidates: List[int],
 ) -> None:
-    """Repair ∨E with either DS conversion or placeholder implication references."""
+    """Repair ∨E: validate exactly 3 references [disjunction, case1, case2].
+    
+    FIX 2: Do NOT automatically convert ∨E to DS.
+    - If ∨E has exactly 3 references, keep it as ∨E
+    - If ∨E has wrong count but matches DS pattern, keep it invalid (don't convert)
+    - This forces the LLM to generate DS directly for simple cases (P ∨ Q, ¬P ⊢ Q)
+    """
     current_line = _to_int(step.get("line")) or 0
     refs = _sanitize_references(step.get("references", []), current_line)
+    
+    # FIX 2 CHANGE: Check if this is ∨E with exactly 3 references
+    if _normalize_rule(step.get("rule", "")) == "∨E":
+        if len(refs) >= 3:
+            # ∨E has correct number of references - keep it
+            step["references"] = refs[:3]
+            return
+        else:
+            # ∨E has wrong references - do NOT convert to DS
+            # Instead, keep it as invalid and let Lean repair handle it
+            # Fit available references to what ∨E expects (3 refs)
+            step["references"] = _fit_reference_count(refs, 3, candidates)
+            return
+    
+    # Original logic continues for other cases or if not ∨E
     if len(refs) >= 3:
         step["references"] = refs[:3]
         return
@@ -388,23 +536,29 @@ def _repair_or_elimination(
             if disjunction_parts:
                 negated = _strip_negation(str(negation_step.get("formula", "")))
                 if negated == disjunction_parts[0]:
-                    step["rule"] = "DS"
-                    step["references"] = [
-                        _to_int(disjunction_step.get("line")) or refs[0],
-                        _to_int(negation_step.get("line")) or refs[-1],
-                    ]
-                    if not step.get("formula") or str(step.get("formula", "")).strip() == "":
-                        step["formula"] = disjunction_parts[1]
-                    return
+                    # Pattern matches DS: (p ∨ q), ¬p ⊢ q
+                    # Only convert if the step rule is NOT ∨E (rule was misidentified)
+                    if _normalize_rule(step.get("rule", "")) != "∨E":
+                        step["rule"] = "DS"
+                        step["references"] = [
+                            _to_int(disjunction_step.get("line")) or refs[0],
+                            _to_int(negation_step.get("line")) or refs[-1],
+                        ]
+                        if not step.get("formula") or str(step.get("formula", "")).strip() == "":
+                            step["formula"] = disjunction_parts[1]
+                        return
                 if negated == disjunction_parts[1]:
-                    step["rule"] = "DS"
-                    step["references"] = [
-                        _to_int(disjunction_step.get("line")) or refs[0],
-                        _to_int(negation_step.get("line")) or refs[-1],
-                    ]
-                    if not step.get("formula") or str(step.get("formula", "")).strip() == "":
-                        step["formula"] = disjunction_parts[0]
-                    return
+                    # Pattern matches DS: (p ∨ q), ¬q ⊢ p
+                    # Only convert if the step rule is NOT ∨E
+                    if _normalize_rule(step.get("rule", "")) != "∨E":
+                        step["rule"] = "DS"
+                        step["references"] = [
+                            _to_int(disjunction_step.get("line")) or refs[0],
+                            _to_int(negation_step.get("line")) or refs[-1],
+                        ]
+                        if not step.get("formula") or str(step.get("formula", "")).strip() == "":
+                            step["formula"] = disjunction_parts[0]
+                        return
 
     # No new-line mode: keep only existing references and downgrade to best 2-premise rule.
     fallback_rule = _choose_non_strict_fallback_rule(
@@ -426,6 +580,13 @@ def repair_rules(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dict
     validated_steps = validated_proof.get("steps", []) if isinstance(validated_proof, dict) else []
 
     if not isinstance(steps, list) or not isinstance(validated_steps, list):
+        return repaired
+
+    # Narrow deterministic fallback for disjunction-by-cases shape used by B2-like problems.
+    # This avoids malformed post-repair leftovers when a clean ∨E construction is available.
+    synthesized_steps = _build_disjunction_cases_proof_if_possible(repaired)
+    if synthesized_steps is not None:
+        repaired["steps"] = synthesized_steps
         return repaired
 
     rule_lookup = get_rule_lookup()
@@ -488,7 +649,18 @@ def repair_rules(proof: Dict[str, Any], validated_proof: Dict[str, Any]) -> Dict
 
         if _normalize_rule(step.get("rule", "")) == "∨E" and len(_sanitize_references(step.get("references", []), current_line)) < 3:
             _repair_or_elimination(step, steps, idx, current_scope, candidates)
-
+        
+        # Check semantic formula type compatibility
+        rule = _normalize_rule(step.get("rule", ""))
+        type_error = check_formula_type_compatibility(rule, step, steps)
+        if rule == "∀E":
+            references = step.get("references", [])
+            ref_idx = _to_int(references[0]) if isinstance(references, list) and references else None
+            ref_formula = ""
+            if ref_idx and 1 <= ref_idx <= len(steps):
+                ref_formula = str(steps[ref_idx - 1].get("formula", ""))
+            if "∧" in ref_formula or type_error:
+                step["rule"] = "∧E"
     # Normalize Fitch text for stable formatting after deterministic repairs.
     for idx, step in enumerate(steps, start=1):
         line_value = _to_int(step.get("line")) or idx

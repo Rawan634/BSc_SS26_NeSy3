@@ -854,6 +854,44 @@ def validate_proof(proof_json: Dict[str, Any]) -> Dict[str, Any]:
                 )
                 break
 
+    logical_inference_rules = {
+        "→I",
+        "→E",
+        "∧I",
+        "∧E",
+        "∨I",
+        "∨E",
+        "¬I",
+        "¬E",
+        "⊥E",
+        "MT",
+        "HS",
+        "DS",
+    }
+    has_logical_inference = any(
+        isinstance(step, dict) and str(step.get("rule", "")).strip() in logical_inference_rules
+        for step in proof_with_validation["steps"]
+    )
+    if not has_logical_inference and proof_with_validation["steps"]:
+        target_step = None
+        for step in reversed(proof_with_validation["steps"]):
+            if isinstance(step, dict) and str(step.get("rule", "")).strip().lower() != "goal":
+                target_step = step
+                break
+        if target_step is None:
+            target_step = proof_with_validation["steps"][-1]
+
+        if isinstance(target_step, dict):
+            line_number = _to_int(target_step.get("line")) or len(proof_with_validation["steps"])
+            target_step["validation"] = {
+                "valid": False,
+                "error_type": "INVALID_PREMISE",
+                "error": (
+                    "Proof for a no-premise problem must contain at least one logical inference step; "
+                    f"line {line_number} does not derive the goal."
+                ),
+            }
+
     return proof_with_validation
 
 

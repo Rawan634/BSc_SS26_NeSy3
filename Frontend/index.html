@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Logic Tutor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Interactive proof assistant</p>
+        <h1>AI Logic Tutor</h1>
+        <p class="subtitle">Ask logic questions, build verified proofs, and inspect Fitch-style steps with hover and click explanations.</p>
+      </div>
+      <button class="help-button" id="helpButton" type="button">Help</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel mode-panel">
+        <div class="mode-switch" role="tablist" aria-label="Tutor mode selector">
+          <button class="mode-tab active" id="aiModeTab" type="button" aria-pressed="true">AI Tutor Mode</button>
+          <button class="mode-tab" id="verifiedModeTab" type="button" aria-pressed="false">Verified Proof Mode</button>
+        </div>
+
+        <div class="mode-card active" id="aiTutorPanel">
+          <div class="field-group">
+            <label for="aiQuestion">Ask a logic question</label>
+            <textarea id="aiQuestion" rows="6" placeholder="For example: How do I use Modus Tollens?"></textarea>
+          </div>
+          <div class="actions-row">
+            <button class="primary-button" id="askTutorButton" type="button">Ask Tutor</button>
+          </div>
+          <div class="response-box" id="aiResponse" aria-live="polite">
+            <div class="placeholder">Tutor explanations will appear here.</div>
+          </div>
+        </div>
+
+        <div class="mode-card" id="verifiedProofPanel">
+          <div class="field-group">
+            <label for="premisesInput">Premises</label>
+            <textarea id="premisesInput" rows="8" placeholder="Enter one premise per line, for example:\nP → Q\nQ → R\nP"></textarea>
+          </div>
+          <div class="field-group">
+            <label for="goalInput">Goal</label>
+            <textarea id="goalInput" rows="3" placeholder="For example: R"></textarea>
+          </div>
+          <div class="actions-row">
+            <button class="primary-button" id="solveProofButton" type="button">Solve Verified Proof</button>
+          </div>
+          <div class="response-box proof-output" id="verifiedProofOutput" aria-live="polite">
+            <div class="placeholder">Formatted Fitch-style proof will appear here.</div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="info-card">
+          <h2>How it works</h2>
+          <p>Hover a proof step to see the short rule explanation. Click the line to expand detailed guidance, examples, and any correction history.</p>
+        </div>
+        <div class="info-card">
+          <h2>Proof View</h2>
+          <div class="legend">
+            <span><i class="swatch corrected"></i> Corrected line</span>
+            <span><i class="swatch hovered"></i> Hover explanation</span>
+          </div>
+        </div>
+        <div class="info-card status-card" id="statusCard">
+          <h2>Status</h2>
+          <p id="statusText">Ready to tutor.</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="help-modal" id="helpModal" aria-hidden="true">
+    <div class="help-modal-backdrop" data-help-close="backdrop"></div>
+    <section class="help-modal-panel" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle" tabindex="-1">
+      <header class="help-modal-header">
+        <div>
+          <p class="help-kicker">Quick Guide</p>
+          <h2 id="helpModalTitle">How To Use AI Logic Tutor</h2>
+          <p class="help-subtitle">Everything you need to get clear answers and clean verified proofs.</p>
+        </div>
+        <button class="help-close-button" id="helpCloseButton" type="button" aria-label="Close help">✕</button>
+      </header>
+
+      <div class="help-grid">
+        <article class="help-card">
+          <h3><span class="help-icon">🧠</span> AI Tutor Mode</h3>
+          <p>Ask conceptual logic questions and get concise teaching explanations from the tutor model.</p>
+          <ul>
+            <li>Type your question in the AI panel.</li>
+            <li>Click Ask Tutor.</li>
+            <li>Use Ctrl+Enter for faster submit.</li>
+          </ul>
+        </article>
+
+        <article class="help-card">
+          <h3><span class="help-icon">✅</span> Verified Proof Mode</h3>
+          <p>Generate a validated Fitch-style proof with rule explanations and correction metadata.</p>
+          <ul>
+            <li>Enter one premise per line.</li>
+            <li>Enter one goal formula.</li>
+            <li>Click Solve Verified Proof.</li>
+          </ul>
+        </article>
+
+        <article class="help-card">
+          <h3><span class="help-icon">📘</span> Input Format Tips</h3>
+          <p>Use standard propositional symbols for best parsing and validation.</p>
+          <ul>
+            <li>Implication: P → Q</li>
+            <li>Negation: ¬P</li>
+            <li>Disjunction: P ∨ Q</li>
+            <li>Conjunction: P ∧ Q</li>
+          </ul>
+        </article>
+
+        <article class="help-card">
+          <h3><span class="help-icon">🔎</span> Reading Proof Lines</h3>
+          <p>Each line can show short and detailed guidance to explain the logic behind the step.</p>
+          <ul>
+            <li>Hover for short explanation.</li>
+            <li>Click to expand full teaching text.</li>
+            <li>Goal line is highlighted in green.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div class="tooltip" id="proofTooltip" role="tooltip" aria-hidden="true"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@ from typing import Any, Dict, Tuple
 
 from phase6_repair.rule_repair import repair_rules
 from phase6_repair.scope_repair import normalize_implication_closure_references, repair_scopes
+from phase7.phase7_lean_runner import repair_proof_goal_with_lean
 from validator.rule_validator import save_json_file, summarize_validation_phases, validate_proof
 
 MAX_ITERATIONS = 4
@@ -67,6 +68,10 @@ class RepairController:
                 return truncated
         return proof
 
+    @staticmethod
+    def _canonical_formula(formula: str) -> str:
+        return "".join(str(formula or "").split())
+
     def _run_phase3(self, proof: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         validated = validate_proof(proof)
         summary = summarize_validation_phases(validated)
@@ -93,12 +98,79 @@ class RepairController:
         """Repair proof deterministically until Phase 3 and 4 pass or cap is reached."""
         proof = self._ensure_proof_shape(proof_or_steps)
 
+        def _attempt_goal_synthesis(current_proof: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+            try:
+                from phase7.phase7_lean_runner import _synthesize_fitch_from_premises_and_goal, repair_proof_goal_with_lean
+            except Exception:  # pragma: no cover - local fallback only
+                return None
+
+            if not goal_formula or not callable(_synthesize_fitch_from_premises_and_goal):
+                return None
+
+            premise_formulas = [
+                str(step.get("formula", "")).strip()
+                for step in current_proof.get("steps", [])
+                if isinstance(step, dict)
+                and str(step.get("rule", "")).strip().lower() == "premise"
+                and int(step.get("scope_level", 0) or 0) == 0
+            ]
+            if not premise_formulas:
+                rebuilt = repair_proof_goal_with_lean(
+                    {"steps": [], "requested_goal_formula": goal_formula},
+                    goal_formula,
+                    force_repair=True,
+                )
+                rebuilt_steps = rebuilt.get("steps", []) if isinstance(rebuilt, dict) else []
+                if not isinstance(rebuilt_steps, list) or not rebuilt_steps:
+                    return None
+
+                validated = validate_proof(rebuilt)
+                summary = summarize_validation_phases(validated)
+                if bool(summary.get("phase3_passed", False) and summary.get("phase4_passed", False)):
+                    validated["previous_error"] = previous_error
+                    save_json_file(self.latest_structural_path, validated)
+                    return validated
+                return None
+
+            synthesized_steps = _synthesize_fitch_from_premises_and_goal(premise_formulas, goal_formula)
+            if not synthesized_steps:
+                return None
+
+            rebuilt = {
+                "steps": synthesized_steps,
+                "requested_goal_formula": goal_formula,
+                "previous_error": previous_error,
+            }
+            validated = validate_proof(rebuilt)
+            summary = summarize_validation_phases(validated)
+            if bool(summary.get("phase3_passed", False) and summary.get("phase4_passed", False)):
+                save_json_file(self.latest_structural_path, validated)
+                return validated
+            return rebuilt
+
         # Preserve the first validated proof snapshot before deterministic repair.
         save_json_file(self.latest_validated_path, proof)
 
         current = proof
-        goal_formula = self._extract_goal_formula(current)
+        goal_formula = str(current.get("requested_goal_formula", "")).strip() or self._extract_goal_formula(current)
         previous_error: list[Dict[str, Any]] = []
+
+        # Convergence guard: if a generated proof has already ballooned beyond 20 lines
+        # and still does not end at the requested goal, switch strategy immediately.
+        if goal_formula:
+            steps = current.get("steps", []) if isinstance(current, dict) else []
+            if isinstance(steps, list) and len(steps) > 20:
+                last_formula = ""
+                if steps and isinstance(steps[-1], dict):
+                    last_formula = str(steps[-1].get("formula", "")).strip()
+                if self._canonical_formula(last_formula) != self._canonical_formula(goal_formula):
+                    LOGGER.info(
+                        "proof exceeds 20 steps without reaching goal; switching to alternate repair strategy"
+                    )
+                    synthesized = _attempt_goal_synthesis(current)
+                    if synthesized is not None:
+                        return synthesized
+                    current = repair_proof_goal_with_lean(current, goal_formula, force_repair=True)
 
         for iteration in range(1, self.max_iterations + 1):
             # Capture current structural errors before this repair iteration.
@@ -136,11 +208,32 @@ class RepairController:
 
             current["previous_error"] = previous_error
 
+            if goal_formula:
+                steps = current.get("steps", []) if isinstance(current, dict) else []
+                if isinstance(steps, list) and len(steps) > 20:
+                    last_formula = ""
+                    if steps and isinstance(steps[-1], dict):
+                        last_formula = str(steps[-1].get("formula", "")).strip()
+                    if self._canonical_formula(last_formula) != self._canonical_formula(goal_formula):
+                        synthesized = _attempt_goal_synthesis(current)
+                        if synthesized is not None:
+                            return synthesized
+                        return current
+
             if phase3_passed and phase4_passed:
                 save_json_file(self.latest_structural_path, current)
                 return current
 
+        # Final fallback: rebuild a structurally valid proof from premises and goal
+        # instead of inventing more repair edits when the current proof is still invalid.
+        synthesized = _attempt_goal_synthesis(current)
+        if synthesized is not None:
+            return synthesized
+
         current["previous_error"] = previous_error
+        # Mark that deterministic repairs exhausted without producing a structurally valid proof.
+        current["repair_failed"] = True
+        current["repair_failed_reason"] = "max_iterations_exceeded"
         return current
 
 

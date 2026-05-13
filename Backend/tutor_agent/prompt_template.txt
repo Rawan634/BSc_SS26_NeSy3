@@ -37,6 +37,18 @@ Correct output:
   ]
 }}
 
+========== KEY PRINCIPLES ==========
+- When you have A ∧ B and need to use one component, use ∧E to extract it
+- When you have A ∨ B and both branches lead to C, use ∨E with all three references
+- When you have ¬¬A, use ¬E to eliminate the double negation and get A
+- When you have A → B and A, use →E (modus ponens) to get B
+- When you have ¬A and A, use ¬E to derive contradiction ⊥
+- When deriving a conditional A → C, assume A (in a sub-proof) and derive C, then close with →I
+- When deriving ¬A, assume A (in a sub-proof) and derive ⊥, then close with ¬I
+- Always include ALL premises at the start with rule="premise"
+- Each inference step must reference valid previous line numbers
+- Respect scope_level: 0 for top-level, 1 for one level of assumption, etc.
+
 ========== YOUR TURN ==========
 Now generate the proof for the problem above.
 Output ONLY the JSON object. Do not include any explanations or extra text.
