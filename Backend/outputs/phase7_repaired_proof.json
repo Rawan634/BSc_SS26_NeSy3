@@ -2,11 +2,11 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P \u2192 Q",
+      "formula": "P \u2228 Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P \u2192 Q",
+      "fitch_notation": "1. P \u2228 Q",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -18,11 +18,11 @@
     },
     {
       "line": 2,
-      "formula": "Q \u2192 R",
+      "formula": "\u00acP \u2228 R",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "2. Q \u2192 R",
+      "fitch_notation": "2. \u00acP \u2228 R",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -34,11 +34,11 @@
     },
     {
       "line": 3,
-      "formula": "\u00acR",
+      "formula": "\u00acQ \u2228 S",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "3. \u00acR",
+      "fitch_notation": "3. \u00acQ \u2228 S",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -50,14 +50,11 @@
     },
     {
       "line": 4,
-      "formula": "P \u2192 R",
-      "rule": "HS",
-      "references": [
-        1,
-        2
-      ],
-      "scope_level": 0,
-      "fitch_notation": "4. P \u2192 R",
+      "formula": "\u00acR",
+      "rule": "assumption",
+      "references": [],
+      "scope_level": 1,
+      "fitch_notation": "  | 4. \u00acR",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -65,20 +62,18 @@
       },
       "semantic_valid": true,
       "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
+      "semantic_error": ""
     },
     {
       "line": 5,
-      "formula": "\u00acQ",
-      "rule": "MT",
+      "formula": "\u00acP",
+      "rule": "DS",
       "references": [
         2,
-        3
+        4
       ],
-      "scope_level": 0,
-      "fitch_notation": "5. \u00acQ",
+      "scope_level": 1,
+      "fitch_notation": "  | 5. \u00acP",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -92,14 +87,179 @@
     },
     {
       "line": 6,
-      "formula": "\u00acP",
-      "rule": "MT",
+      "formula": "Q",
+      "rule": "DS",
       "references": [
-        4,
+        1,
+        5
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 6. Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 7,
+      "formula": "Q \u2228 S",
+      "rule": "\u2228I",
+      "references": [
+        6
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 7. Q \u2228 S",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 8,
+      "formula": "Q \u2228 S \u2227 \u00acQ \u2228 S",
+      "rule": "lean_derived",
+      "references": [
+        7,
         3
       ],
+      "scope_level": 1,
+      "fitch_notation": "  | 8. Q \u2228 S \u2227 \u00acQ \u2228 S",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "lean_repair_applied": true,
+      "repair_method": "lean_formal_proof",
+      "lean_semantic_only": true
+    },
+    {
+      "line": 9,
+      "formula": "\u22a5",
+      "rule": "\u22a5E",
+      "references": [
+        8
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 9. \u22a5",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 0.7977144718170166,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 10,
+      "formula": "\u00ac\u00acR",
+      "rule": "\u00acI",
+      "references": [
+        4,
+        9
+      ],
       "scope_level": 0,
-      "fitch_notation": "6. \u00acP",
+      "fitch_notation": "10. \u00ac\u00acR",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 11,
+      "formula": "R",
+      "rule": "\u00acE",
+      "references": [
+        10
+      ],
+      "scope_level": 0,
+      "fitch_notation": "11. R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 12,
+      "formula": "\u00ac\u00acR",
+      "rule": "lean_derived",
+      "references": [
+        10
+      ],
+      "scope_level": 0,
+      "fitch_notation": "12. \u00ac\u00acR",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 13,
+      "formula": "R",
+      "rule": "lean_derived",
+      "references": [
+        11
+      ],
+      "scope_level": 0,
+      "fitch_notation": "13. R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 14,
+      "formula": "R \u2228 S",
+      "rule": "\u2228I",
+      "references": [
+        13
+      ],
+      "scope_level": 0,
+      "fitch_notation": "14. R \u2228 S",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -112,7 +272,12 @@
       "error_type": ""
     }
   ],
-  "requested_goal_formula": "\u00acP",
+  "requested_goal_formula": "R \u2228 S",
+  "source_premises": [
+    "P \u2228 Q",
+    "\u00acP \u2228 R",
+    "\u00acQ \u2228 S"
+  ],
   "lean_goal_repair_applied": true,
   "lean_goal_repair_method": "primitive_synthesis",
   "previous_error": [

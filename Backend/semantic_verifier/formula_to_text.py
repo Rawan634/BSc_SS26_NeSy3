@@ -130,12 +130,12 @@ class _FormulaParser:
             self._consume()
             return node
 
-        if token in {")", "→", "∧", "∨", "⊥"}:
-            raise ValueError(f"Unexpected token while parsing primary expression: {token}")
-
         if token == "⊥":
             self._consume()
             return FormulaNode(kind="atom", value="⊥")
+
+        if token in {")", "→", "∧", "∨"}:
+            raise ValueError(f"Unexpected token while parsing primary expression: {token}")
 
         self._consume()
         return FormulaNode(kind="atom", value=token)

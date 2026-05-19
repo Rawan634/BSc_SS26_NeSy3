@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import logging
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from phase6_repair.rule_repair import repair_rules
 from phase6_repair.scope_repair import normalize_implication_closure_references, repair_scopes
@@ -100,7 +100,11 @@ class RepairController:
 
         def _attempt_goal_synthesis(current_proof: Dict[str, Any]) -> Optional[Dict[str, Any]]:
             try:
-                from phase7.phase7_lean_runner import _synthesize_fitch_from_premises_and_goal, repair_proof_goal_with_lean
+                from phase7.phase7_lean_runner import (
+                    _build_exact_primitive_proof,
+                    _synthesize_fitch_from_premises_and_goal,
+                    repair_proof_goal_with_lean,
+                )
             except Exception:  # pragma: no cover - local fallback only
                 return None
 
@@ -114,6 +118,11 @@ class RepairController:
                 and str(step.get("rule", "")).strip().lower() == "premise"
                 and int(step.get("scope_level", 0) or 0) == 0
             ]
+            source_premises = current_proof.get("source_premises", [])
+            if isinstance(source_premises, list):
+                normalized_source = [str(item).strip() for item in source_premises if str(item).strip()]
+                if normalized_source:
+                    premise_formulas = normalized_source
             if not premise_formulas:
                 rebuilt = repair_proof_goal_with_lean(
                     {"steps": [], "requested_goal_formula": goal_formula},
@@ -131,6 +140,19 @@ class RepairController:
                     save_json_file(self.latest_structural_path, validated)
                     return validated
                 return None
+
+            exact_steps = _build_exact_primitive_proof(premise_formulas, goal_formula)
+            if exact_steps:
+                rebuilt = {
+                    "steps": exact_steps,
+                    "requested_goal_formula": goal_formula,
+                    "previous_error": previous_error,
+                }
+                validated = validate_proof(rebuilt)
+                summary = summarize_validation_phases(validated)
+                if bool(summary.get("phase3_passed", False) and summary.get("phase4_passed", False)):
+                    save_json_file(self.latest_structural_path, validated)
+                    return validated
 
             synthesized_steps = _synthesize_fitch_from_premises_and_goal(premise_formulas, goal_formula)
             if not synthesized_steps:

@@ -1,17 +1,38 @@
 :root {
-  --bg: #f4efe6;
-  --bg-2: #ebe2d6;
-  --surface: rgba(255, 252, 247, 0.9);
-  --surface-strong: #fffaf2;
-  --text: #17212b;
+  /* Light theme (default) */
+  --bg: #f6f8fa;
+  --bg-2: #eef3f7;
+  --surface: #ffffff;
+  --surface-strong: #fbfdff;
+  --text: #0b1220; /* dark text */
   --muted: #5d6773;
-  --accent: #1f6f8b;
-  --accent-2: #d96c4f;
-  --accent-soft: rgba(31, 111, 139, 0.12);
-  --line: rgba(23, 33, 43, 0.12);
-  --shadow: 0 24px 60px rgba(26, 35, 48, 0.14);
-  --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  --sans: "Aptos", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --accent: #0b7285; /* teal-ish */
+  --accent-2: #d97706; /* warm gold */
+  --accent-soft: rgba(11,114,133,0.08);
+  --line: rgba(11, 18, 32, 0.06);
+  --shadow: 0 18px 40px rgba(11, 18, 32, 0.06);
+  --mono: "Fira Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Hide main app content while help modal is open to avoid overlap */
+.help-open .app-shell {
+  visibility: hidden;
+}
+
+/* Dark theme overrides */
+.theme-dark {
+  --bg: #0f1724; /* deep navy */
+  --bg-2: #0b1220;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: rgba(255, 255, 255, 0.06);
+  --text: #e6eef6;
+  --muted: #9fb3c8;
+  --accent: #4dd0e1; /* teal */
+  --accent-2: #ffd166; /* warm gold */
+  --accent-soft: rgba(77, 208, 225, 0.08);
+  --line: rgba(255, 255, 255, 0.06);
+  --shadow: 0 18px 50px rgba(2, 6, 23, 0.6);
 }
 
 * {
@@ -27,10 +48,9 @@ body {
 body {
   font-family: var(--sans);
   color: var(--text);
-  background:
-    radial-gradient(circle at top left, rgba(31, 111, 139, 0.16), transparent 34%),
-    radial-gradient(circle at top right, rgba(217, 108, 79, 0.14), transparent 30%),
-    linear-gradient(180deg, var(--bg), var(--bg-2));
+  background: linear-gradient(180deg, var(--bg), var(--bg-2));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body::before {
@@ -46,59 +66,166 @@ body::before {
 .app-shell {
   position: relative;
   z-index: 1;
-  max-width: 1440px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 32px;
+  padding: 40px 28px;
 }
 
 .hero {
   display: flex;
   justify-content: space-between;
   gap: 24px;
-  align-items: flex-start;
-  margin-bottom: 24px;
+  align-items: center;
+  margin-bottom: 28px;
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  font-size: 0.8rem;
+  margin: 0 0 8px;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(2.4rem, 5vw, 4.4rem);
-  line-height: 0.96;
-  letter-spacing: -0.04em;
+  font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  font-weight: 800;
 }
 
 .subtitle {
-  max-width: 760px;
-  margin: 14px 0 0;
+  max-width: 720px;
+  margin: 8px 0 0;
   color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1.6;
+  font-size: 0.98rem;
+  line-height: 1.5;
 }
 
 .help-button,
 .mode-tab,
 .primary-button {
   border: 0;
-  border-radius: 999px;
   font-family: inherit;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.header-actions {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .help-button {
-  padding: 12px 18px;
-  background: rgba(255, 255, 255, 0.72);
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(77,208,225,0.14), rgba(77,208,225,0.06));
+  color: var(--accent);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.45), 0 2px 8px rgba(77,208,225,0.06) inset;
+  border: 1px solid rgba(77,208,225,0.12);
+}
+
+.help-button svg {
+  color: var(--accent-2);
+}
+
+.theme-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11,18,32,0.02);
+  border: 1px solid rgba(11,18,32,0.04);
+  color: var(--muted);
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  color: var(--muted);
+}
+
+/* Icon crossfade and transform */
+.theme-toggle .icon {
+  position: absolute;
+  transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  opacity: 1;
+}
+.theme-toggle { position: relative; }
+.theme-toggle .icon-moon { opacity: 0; transform: rotate(10deg) scale(0.9); }
+.theme-dark .theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+.theme-dark .theme-toggle .icon-sun { opacity: 0; transform: rotate(-15deg) scale(0.8); }
+
+/* Input focus accent line */
+textarea, input[type="text"], input[type="search"], input[type="email"] {
+  transition: box-shadow 180ms ease, border-color 160ms ease, transform 120ms ease;
+}
+
+textarea:focus, input[type="text"]:focus, input[type="search"]:focus, input[type="email"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  /* inset bottom accent line */
+  box-shadow: inset 0 -4px 0 0 var(--accent);
+}
+
+/* Make sure help modal text uses theme colors */
+.help-modal, .help-modal * {
   color: var(--text);
-  box-shadow: 0 8px 20px rgba(18, 25, 34, 0.08);
+}
+
+/* Small polish */
+.primary-button:hover { transform: translateY(-3px); }
+.help-button:hover { transform: translateY(-3px) scale(1.02); }
+
+/* Help modal theming and backdrop */
+.help-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+}
+
+.help-modal.open { display: flex; }
+
+.help-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11,18,32,0.32);
+}
+
+.theme-dark .help-modal-backdrop {
+  background: rgba(2,6,23,0.7);
+}
+
+.help-modal-panel {
+  position: relative;
+  width: min(920px, 94%);
+  max-height: 84vh;
+  overflow: auto;
+  border-radius: 12px;
+  padding: 18px 20px;
+  background: var(--surface-strong);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.help-modal-panel h2,
+.help-modal-panel p,
+.help-modal-panel li {
+  color: var(--text);
 }
 
 .help-button:hover,
@@ -130,7 +257,7 @@ h1 {
   padding: 6px;
   gap: 6px;
   border-radius: 999px;
-  background: rgba(23, 33, 43, 0.05);
+  background: rgba(255,255,255,0.02);
   margin-bottom: 18px;
 }
 
@@ -149,7 +276,7 @@ h1 {
 .mode-card {
   display: none;
   gap: 16px;
-  animation: fadeIn 0.22s ease;
+  animation: fadeIn 0.18s ease;
 }
 
 .mode-card.active {
@@ -172,13 +299,13 @@ textarea {
   resize: vertical;
   min-height: 92px;
   padding: 16px 18px;
-  border-radius: 20px;
-  border: 1px solid rgba(23, 33, 43, 0.12);
-  background: rgba(255, 255, 255, 0.82);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
   color: var(--text);
   font: 500 0.98rem/1.55 var(--sans);
   outline: none;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
 }
 
 textarea:focus {
@@ -192,10 +319,11 @@ textarea:focus {
 }
 
 .primary-button {
-  padding: 13px 20px;
-  background: linear-gradient(135deg, var(--accent), #245bcb);
-  color: white;
-  box-shadow: 0 14px 28px rgba(36, 91, 203, 0.24);
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--accent), rgba(31,111,139,0.9));
+  color: #042328;
+  box-shadow: 0 10px 28px rgba(3,12,20,0.6), 0 2px 6px rgba(77,208,225,0.06) inset;
 }
 
 .primary-button:disabled,
@@ -206,9 +334,9 @@ textarea:focus {
 
 .response-box {
   min-height: 220px;
-  border-radius: 24px;
-  border: 1px solid rgba(23, 33, 43, 0.12);
-  background: rgba(255, 255, 255, 0.72);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.02);
   padding: 18px;
   overflow: auto;
 }
@@ -226,10 +354,10 @@ textarea:focus {
 }
 
 .info-card {
-  padding: 20px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid rgba(23, 33, 43, 0.08);
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
 .info-card h2 {
@@ -264,7 +392,7 @@ textarea:focus {
 
 .swatch.corrected {
   background: var(--accent-2);
-  box-shadow: 0 0 0 4px rgba(217, 108, 79, 0.16);
+  box-shadow: 0 0 0 6px rgba(255,209,102,0.06);
 }
 
 .swatch.hovered {
@@ -306,21 +434,21 @@ textarea:focus {
 .proof-line {
   position: relative;
   display: grid;
-  grid-template-columns: 76px 1fr auto;
+  grid-template-columns: 64px 1fr 170px;
   gap: 12px;
   align-items: start;
   padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(23, 33, 43, 0.1);
-  background: rgba(255, 255, 255, 0.88);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   cursor: pointer;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
 
 .proof-line:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(21, 31, 44, 0.08);
-  border-color: rgba(31, 111, 139, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(2,6,23,0.6);
+  border-color: rgba(77,208,225,0.12);
 }
 
 .proof-line.ref-highlight {
@@ -331,7 +459,7 @@ textarea:focus {
 
 .proof-line.corrected {
   border-left: 6px solid var(--accent-2);
-  background: linear-gradient(90deg, rgba(217, 108, 79, 0.12), rgba(255, 255, 255, 0.92));
+  background: linear-gradient(90deg, rgba(255,209,102,0.06), rgba(255,255,255,0.01));
 }
 
 .proof-line.goal-achieved {
@@ -368,18 +496,18 @@ textarea:focus {
 
 .proof-line .formula {
   font-family: var(--mono);
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.98rem;
+  line-height: 1.45;
   white-space: pre-wrap;
 }
 
 .proof-line .rule-pill {
-  padding: 7px 10px;
+  padding: 8px 12px;
   border-radius: 999px;
-  background: var(--accent-soft);
+  background: rgba(77,208,225,0.06);
   color: var(--accent);
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 800;
   white-space: normal;
   text-align: right;
   max-width: 260px;
@@ -389,9 +517,9 @@ textarea:focus {
   grid-column: 1 / -1;
   display: none;
   gap: 10px;
-  margin-top: 6px;
+  margin-top: 10px;
   padding-top: 12px;
-  border-top: 1px solid rgba(23, 33, 43, 0.08);
+  border-top: 1px solid rgba(255,255,255,0.03);
 }
 
 .proof-line.expanded .proof-details {
@@ -466,11 +594,12 @@ textarea:focus {
 .help-modal-backdrop {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(31, 111, 139, 0.25), transparent 40%),
-    radial-gradient(circle at 80% 25%, rgba(217, 108, 79, 0.2), transparent 42%),
-    rgba(10, 16, 23, 0.45);
+  background: rgba(11,18,32,0.32);
   backdrop-filter: blur(4px);
+}
+
+.theme-dark .help-modal-backdrop {
+  background: rgba(2,6,23,0.72);
 }
 
 .help-modal-panel {
@@ -478,13 +607,12 @@ textarea:focus {
   width: min(980px, calc(100vw - 32px));
   max-height: min(84vh, 920px);
   overflow: auto;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 30px 80px rgba(9, 18, 29, 0.36);
-  background:
-    linear-gradient(165deg, rgba(255, 255, 255, 0.96), rgba(249, 241, 229, 0.94));
-  padding: 24px;
-  animation: modalRise 0.26s ease;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, var(--surface-strong), var(--surface));
+  padding: 20px;
+  animation: modalRise 0.22s ease;
 }
 
 .help-modal-header {
@@ -543,11 +671,10 @@ textarea:focus {
 
 .help-card {
   padding: 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(23, 33, 43, 0.09);
-  background:
-    linear-gradient(140deg, rgba(255, 255, 255, 0.92), rgba(243, 250, 252, 0.82));
-  box-shadow: 0 8px 20px rgba(21, 31, 44, 0.08);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(2,6,23,0.06);
 }
 
 .help-card h3 {
@@ -564,8 +691,9 @@ textarea:focus {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: rgba(31, 111, 139, 0.12);
+  background: var(--accent-soft);
   font-size: 0.95rem;
+  color: var(--accent);
 }
 
 .help-card p {

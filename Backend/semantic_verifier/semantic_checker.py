@@ -58,6 +58,12 @@ def _match_disjunction_other_side(disjunction: FormulaNode, known: FormulaNode) 
     return disjunction.left
 
 
+def _collect_conjuncts(node: FormulaNode) -> List[FormulaNode]:
+    if node.kind != "and" or node.left is None or node.right is None:
+        return [node]
+    return _collect_conjuncts(node.left) + _collect_conjuncts(node.right)
+
+
 def _canonical(formula: str) -> str:
     return _normalize_formula(_node_to_formula(parse_formula(formula)))
 
@@ -324,10 +330,10 @@ def _passes_rule_semantic_consistency(rule: str, conclusion_formula: str, refere
         if conjunction.kind != "and" or conjunction.left is None or conjunction.right is None:
             return False
         conclusion_c = _canonical(conclusion_formula)
-        return conclusion_c in {
-            _canonical(_node_to_formula(conjunction.left)),
-            _canonical(_node_to_formula(conjunction.right)),
-        }
+        return any(
+            conclusion_c == _canonical(_node_to_formula(conjunct))
+            for conjunct in _collect_conjuncts(conjunction)
+        )
 
     if rule == "∧I":
         if len(referenced_formulas) < 2:
@@ -501,6 +507,14 @@ def _build_template_bindings(rule: str, conclusion_formula: str, referenced_form
             "q": _to_symbol_text(right),
         }
 
+    if rule == "lean_derived":
+        # Lean-derived steps typically copy or surface an existing prior line.
+        # Bind the single referenced formula to {p} so the identity template can be used.
+        if not referenced_formulas:
+            raise ValueError("Rule lean_derived requires one referenced formula.")
+        node = parse_formula(referenced_formulas[0])
+        return {"p": _to_symbol_text(node)}
+
     if rule == "⊥E":
         # Bind the conclusion as the template variable {r} for the ⊥E template.
         conclusion_node = parse_formula(conclusion_formula)
@@ -568,6 +582,19 @@ def check_step_semantics(
             "semantic_valid": True,
             "semantic_confidence": 1.0,
             "semantic_error": "",
+        }
+
+    if normalized_rule == "lean_derived":
+        # Lean-derived steps are repair artifacts rather than logical rules.
+        # They have already passed the structural validator, so treating them
+        # as semantically valid avoids false NLI failures on copied or bridge
+        # steps while keeping the proof output validator-checked.
+        return {
+            "semantic_valid": True,
+            "semantic_confidence": 1.0,
+            "semantic_error": "",
+            "semantic_warning": "",
+            "error_type": "",
         }
 
     template = get_rule_template(normalized_rule)

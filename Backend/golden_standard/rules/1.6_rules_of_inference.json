@@ -257,5 +257,31 @@
     "full_explanation": "In Section 1.8, Rosen describes proof by cases: if a theorem can be reduced to a disjunction p1 ∨ p2 ∨ ... ∨ pn, then each case can be handled separately to establish the same conclusion q. In the two-case form, this is the disjunction-elimination rule: from p ∨ q, together with p → r and q → r, infer r.",
     "source_pdf": "Rosen_1.8_Proof_Methods_Strategy.pdf",
     "page": 97
+  },
+  {
+    "name": "De Morgan's Law (Conjunction)",
+    "symbol": "DM∧",
+    "pattern_description": "¬(p ∧ q) ⇔ ¬p ∨ ¬q (bidirectional equivalence)",
+    "premises": [
+      "¬(p ∧ q) or (¬p ∨ ¬q)"
+    ],
+    "conclusion": "¬p ∨ ¬q or ¬(p ∧ q)",
+    "natural_language": "The negation of a conjunction is equivalent to the disjunction of the negations.",
+    "full_explanation": "De Morgan's law states that ¬(p ∧ q) is logically equivalent to ¬p ∨ ¬q. This is one of the most important equivalences in logic, used to transform negated conjunctions into disjunctions of negations, and vice versa. This equivalence can be applied in both directions.",
+    "source_pdf": "Rosen_1.3_Propositional_Equivalences.pdf",
+    "page": 29
+  },
+  {
+    "name": "De Morgan's Law (Disjunction)",
+    "symbol": "DM∨",
+    "pattern_description": "¬(p ∨ q) ⇔ ¬p ∧ ¬q (bidirectional equivalence)",
+    "premises": [
+      "¬(p ∨ q) or (¬p ∧ ¬q)"
+    ],
+    "conclusion": "¬p ∧ ¬q or ¬(p ∨ q)",
+    "natural_language": "The negation of a disjunction is equivalent to the conjunction of the negations.",
+    "full_explanation": "De Morgan's law states that ¬(p ∨ q) is logically equivalent to ¬p ∧ ¬q. This dual form of De Morgan's law transforms negated disjunctions into conjunctions of negations, and vice versa. Like the conjunction variant, this equivalence is bidirectional and can be applied in either direction.",
+    "source_pdf": "Rosen_1.3_Propositional_Equivalences.pdf",
+    "page": 29
   }
 ]

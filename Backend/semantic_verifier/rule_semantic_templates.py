@@ -59,6 +59,18 @@ _RULE_TEMPLATES: Dict[str, RuleTemplate] = {
         "A contradiction holds",
         "{r} is true",
     ),
+    "lean_derived": (
+        "{p}",
+        "{p}",
+    ),
+    "DM∧": (
+        "It is not the case that both {p} and {q} are true",
+        "Either {p} is false or {q} is false",
+    ),
+    "DM∨": (
+        "It is not the case that either {p} or {q} is true",
+        "Both {p} is false and {q} is false",
+    ),
 }
 
 

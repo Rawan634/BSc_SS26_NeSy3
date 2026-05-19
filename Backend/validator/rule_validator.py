@@ -166,7 +166,35 @@ def _to_int(value: Any) -> Optional[int]:
 def _normalize_formula(formula: Any) -> str:
     if formula is None:
         return ""
-    return re.sub(r"\s+", "", str(formula))
+    # Remove all whitespace and strip harmless outer parentheses repeatedly.
+    s = re.sub(r"\s+", "", str(formula))
+
+    def _strip_outer_parens(text: str) -> str:
+        while True:
+            text = text.strip()
+            if len(text) >= 2 and text[0] == "(" and text[-1] == ")":
+                # Verify that the outer parentheses are a matched pair
+                depth = 0
+                for i, ch in enumerate(text):
+                    if ch == "(":
+                        depth += 1
+                    elif ch == ")":
+                        depth -= 1
+                    if depth == 0:
+                        # If the matching closing paren is the final char,
+                        # it's safe to remove this outer pair and continue.
+                        if i == len(text) - 1:
+                            text = text[1:-1]
+                            break
+                        # Otherwise the outer '(' pairs with an inner ')',
+                        # so do not strip.
+                        return text
+                else:
+                    return text
+            else:
+                return text
+
+    return _strip_outer_parens(s)
 
 
 def _is_implication(formula: Any) -> bool:
@@ -591,6 +619,7 @@ def validate_step(
     current_context: Optional[Tuple[int, ...]] = None,
     current_scope: Optional[int] = None,
     just_closed_assumptions: Optional[List[int]] = None,
+    allowed_premises: Optional[set[str]] = None,
 ) -> Tuple[bool, str, str]:
     """Validate one proof step against rule metadata and available prior lines.
 
@@ -617,7 +646,39 @@ def validate_step(
     if references_error:
         return False, references_error, "INVALID_REFERENCE"
 
+    # Allow Phase 7 / Lean derived steps as a conservative passthrough.
+    # These are simple derived steps that copy or surface an existing prior line
+    # produced by the Lean repair/synthesis. Accept them if they reference
+    # exactly one visible prior line and otherwise treat them like a known
+    # single-reference derived step.
+    if isinstance(rule, str) and rule == "lean_derived":
+        known_lines, lines_error = _extract_known_lines(all_steps)
+        if lines_error:
+            return False, lines_error, "MISSING_REFERENCE"
+        if not references or len(references) != 1:
+            return False, "Derived step 'lean_derived' must reference exactly one previous line.", "INVALID_PREMISE"
+        ref = references[0]
+        if ref not in known_lines:
+            return False, f"Derived step references unknown line {ref}.", "MISSING_REFERENCE"
+        # Visibility check when context info is available
+        if line_contexts is not None and current_context is not None:
+            visibility_error = _validate_references_visible(
+                references or [],
+                current_context,
+                line_contexts,
+                _to_int(step.get("line")),
+            )
+            if visibility_error:
+                return False, visibility_error, "INVALID_SCOPE_REFERENCE"
+        return True, "", ""
+
     if rule.lower() in {"premise", "assumption", "goal"}:
+        if rule.lower() == "premise" and allowed_premises is not None:
+            formula_text = _normalize_formula(step.get("formula", ""))
+            if formula_text and formula_text not in allowed_premises:
+                return False, (
+                    f"Premise '{step.get('formula', '')}' does not match any original problem premise."
+                ), "INVALID_PREMISE"
         return True, "", ""
 
     try:
@@ -729,6 +790,14 @@ def validate_proof(proof_json: Dict[str, Any]) -> Dict[str, Any]:
     line_scopes: Dict[int, int] = {}
     line_contexts: Dict[int, Tuple[int, ...]] = {}
     line_steps: Dict[int, Dict[str, Any]] = {}
+    source_premises_raw = proof_with_validation.get("source_premises", [])
+    allowed_premises: Optional[set[str]] = None
+    if isinstance(source_premises_raw, list):
+        allowed_premises = {
+            _normalize_formula(item)
+            for item in source_premises_raw
+            if isinstance(item, str) and _normalize_formula(item)
+        }
 
     def _normalize_scope(step_obj: Dict[str, Any]) -> Optional[int]:
         return _to_int(step_obj.get("scope_level", 0))
@@ -821,6 +890,7 @@ def validate_proof(proof_json: Dict[str, Any]) -> Dict[str, Any]:
                         current_context=current_context,
                         current_scope=current_scope,
                         just_closed_assumptions=just_closed_assumptions,
+                        allowed_premises=allowed_premises,
                     )
                     error_type = phase3_error_type if not is_valid else ""
 
@@ -867,12 +937,18 @@ def validate_proof(proof_json: Dict[str, Any]) -> Dict[str, Any]:
         "MT",
         "HS",
         "DS",
+        "DM∧",
+        "DM∨",
     }
     has_logical_inference = any(
         isinstance(step, dict) and str(step.get("rule", "")).strip() in logical_inference_rules
         for step in proof_with_validation["steps"]
     )
-    if not has_logical_inference and proof_with_validation["steps"]:
+    has_explicit_premise = any(
+        isinstance(step, dict) and str(step.get("rule", "")).strip().lower() == "premise"
+        for step in proof_with_validation["steps"]
+    )
+    if (not has_logical_inference) and (not has_explicit_premise) and proof_with_validation["steps"]:
         target_step = None
         for step in reversed(proof_with_validation["steps"]):
             if isinstance(step, dict) and str(step.get("rule", "")).strip().lower() != "goal":

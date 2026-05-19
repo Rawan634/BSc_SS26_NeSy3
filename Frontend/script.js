@@ -14,6 +14,7 @@ const proofTooltip = document.getElementById('proofTooltip');
 const statusText = document.getElementById('statusText');
 const helpModal = document.getElementById('helpModal');
 const helpCloseButton = document.getElementById('helpCloseButton');
+const themeToggle = document.getElementById('themeToggle');
 const API_BASE_URL = window.__AI_LOGIC_TUTOR_API__ || 'http://127.0.0.1:5000';
 
 const RULE_NAME_MAP = {
@@ -381,6 +382,26 @@ function closeHelpModal() {
   helpButton.setAttribute('aria-expanded', 'false');
 }
 
+// When modal opens, hide page content to avoid overlap and interaction
+const MODAL_OPEN_CLASS = 'help-open';
+const appShell = document.querySelector('.app-shell');
+
+const origOpen = openHelpModal;
+openHelpModal = function() {
+  document.documentElement.classList.add(MODAL_OPEN_CLASS);
+  if (appShell) appShell.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = 'hidden';
+  origOpen();
+};
+
+const origClose = closeHelpModal;
+closeHelpModal = function() {
+  document.documentElement.classList.remove(MODAL_OPEN_CLASS);
+  if (appShell) appShell.removeAttribute('aria-hidden');
+  document.body.style.overflow = '';
+  origClose();
+};
+
 async function askTutor() {
   const question = normalizeText(aiQuestion.value);
   if (!question) {
@@ -551,3 +572,40 @@ document.addEventListener('keydown', (event) => {
 
 switchMode('ai');
 clearProofOutput('Formatted Fitch-style proof will appear here.');
+
+// Theme handling: default to light, allow toggle, persist in localStorage
+function applyTheme(theme) {
+  const isDark = theme === 'dark';
+  document.documentElement.classList.toggle('theme-dark', isDark);
+  if (themeToggle) {
+    themeToggle.setAttribute('aria-pressed', String(isDark));
+  }
+  localStorage.setItem('ai_logic_tutor_theme', theme);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('ai_logic_tutor_theme');
+  const theme = saved === 'dark' ? 'dark' : 'light';
+  applyTheme(theme);
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.classList.contains('theme-dark') ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+}
+
+initTheme();
+
+// Add a small visual pulse when toggling for feedback
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    themeToggle.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.06)' },
+      { transform: 'scale(1)' }
+    ], { duration: 220, easing: 'ease-out' });
+  });
+}

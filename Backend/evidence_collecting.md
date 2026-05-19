@@ -1,10 +1,10 @@
 # Evidence Collecting
-## Group A 1
+## Group C 4
 
 ### Problem
 
-Premises: P → Q, Q → R, R → S, P
-Goal: S
+Premises: (P → Q), (Q → R), (R → S), ¬S
+Goal: ¬P
 
 ### Final Output
 
@@ -61,11 +61,11 @@ Goal: S
     },
     {
       "line": 4,
-      "formula": "P",
+      "formula": "¬S",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "4. P",
+      "fitch_notation": "4. ¬S",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -77,14 +77,14 @@ Goal: S
     },
     {
       "line": 5,
-      "formula": "Q",
-      "rule": "→E",
+      "formula": "¬R",
+      "rule": "MT",
       "references": [
-        1,
+        3,
         4
       ],
       "scope_level": 0,
-      "fitch_notation": "5. Q",
+      "fitch_notation": "5. ¬R",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -98,14 +98,14 @@ Goal: S
     },
     {
       "line": 6,
-      "formula": "R",
-      "rule": "→E",
+      "formula": "¬Q",
+      "rule": "MT",
       "references": [
         2,
         5
       ],
       "scope_level": 0,
-      "fitch_notation": "6. R",
+      "fitch_notation": "6. ¬Q",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -119,152 +119,14 @@ Goal: S
     },
     {
       "line": 7,
-      "formula": "S",
-      "rule": "→E",
-      "references": [
-        3,
-        6
-      ],
-      "scope_level": 0,
-      "fitch_notation": "7. S",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    }
-  ],
-  "requested_goal_formula": "S",
-  "previous_error": [
-    {
-      "iteration": 1,
-      "phase3_errors": [],
-      "phase4_errors": []
-    }
-  ],
-  "goal_achieved": true,
-  "goal_error": ""
-}
-```
-
-### Status: True
-## Group A 2
-
-### Problem
-
-Premises: P → Q, Q → R, ¬R
-Goal: ¬P
-
-### Final Output
-
-```json
-{
-  "steps": [
-    {
-      "line": 1,
-      "formula": "P → Q",
-      "rule": "premise",
-      "references": [],
-      "scope_level": 0,
-      "fitch_notation": "1. P → Q",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
-    },
-    {
-      "line": 2,
-      "formula": "Q → R",
-      "rule": "premise",
-      "references": [],
-      "scope_level": 0,
-      "fitch_notation": "2. Q → R",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
-    },
-    {
-      "line": 3,
-      "formula": "¬R",
-      "rule": "premise",
-      "references": [],
-      "scope_level": 0,
-      "fitch_notation": "3. ¬R",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
-    },
-    {
-      "line": 4,
-      "formula": "P → R",
-      "rule": "HS",
-      "references": [
-        1,
-        2
-      ],
-      "scope_level": 0,
-      "fitch_notation": "4. P → R",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 5,
-      "formula": "¬Q",
-      "rule": "MT",
-      "references": [
-        2,
-        3
-      ],
-      "scope_level": 0,
-      "fitch_notation": "5. ¬Q",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 6,
       "formula": "¬P",
       "rule": "MT",
       "references": [
-        4,
-        3
+        1,
+        6
       ],
       "scope_level": 0,
-      "fitch_notation": "6. ¬P",
+      "fitch_notation": "7. ¬P",
       "validation": {
         "valid": true,
         "error_type": "",
@@ -278,6 +140,315 @@ Goal: ¬P
     }
   ],
   "requested_goal_formula": "¬P",
+  "source_premises": [
+    "(P → Q)",
+    "(Q → R)",
+    "(R → S)",
+    "¬S"
+  ],
+  "previous_error": [
+    {
+      "iteration": 1,
+      "phase3_errors": [],
+      "phase4_errors": []
+    }
+  ],
+  "goal_achieved": true,
+  "goal_error": ""
+}
+```
+
+### Status: True
+## Group I 3
+
+### Problem
+
+Premises: P ∨ Q, ¬P ∨ R, ¬Q ∨ S
+Goal: R ∨ S
+
+### Final Output
+
+```json
+{
+  "steps": [
+    {
+      "line": 1,
+      "formula": "P ∨ Q",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "1. P ∨ Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 2,
+      "formula": "¬P ∨ R",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "2. ¬P ∨ R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 3,
+      "formula": "¬Q ∨ S",
+      "rule": "premise",
+      "references": [],
+      "scope_level": 0,
+      "fitch_notation": "3. ¬Q ∨ S",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 4,
+      "formula": "¬R",
+      "rule": "assumption",
+      "references": [],
+      "scope_level": 1,
+      "fitch_notation": "  | 4. ¬R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": ""
+    },
+    {
+      "line": 5,
+      "formula": "¬P",
+      "rule": "DS",
+      "references": [
+        2,
+        4
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 5. ¬P",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 6,
+      "formula": "Q",
+      "rule": "DS",
+      "references": [
+        1,
+        5
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 6. Q",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 7,
+      "formula": "Q ∨ S",
+      "rule": "∨I",
+      "references": [
+        6
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 7. Q ∨ S",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 8,
+      "formula": "Q ∨ S ∧ ¬Q ∨ S",
+      "rule": "lean_derived",
+      "references": [
+        7,
+        3
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 8. Q ∨ S ∧ ¬Q ∨ S",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": "",
+      "lean_repair_applied": true,
+      "repair_method": "lean_formal_proof",
+      "lean_semantic_only": true
+    },
+    {
+      "line": 9,
+      "formula": "⊥",
+      "rule": "⊥E",
+      "references": [
+        8
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 9. ⊥",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 0.7977144718170166,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 10,
+      "formula": "¬¬R",
+      "rule": "¬I",
+      "references": [
+        4,
+        9
+      ],
+      "scope_level": 0,
+      "fitch_notation": "10. ¬¬R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 11,
+      "formula": "R",
+      "rule": "¬E",
+      "references": [
+        10
+      ],
+      "scope_level": 0,
+      "fitch_notation": "11. R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 12,
+      "formula": "¬¬R",
+      "rule": "lean_derived",
+      "references": [
+        10
+      ],
+      "scope_level": 0,
+      "fitch_notation": "12. ¬¬R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 13,
+      "formula": "R",
+      "rule": "lean_derived",
+      "references": [
+        11
+      ],
+      "scope_level": 0,
+      "fitch_notation": "13. R",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    },
+    {
+      "line": 14,
+      "formula": "R ∨ S",
+      "rule": "∨I",
+      "references": [
+        13
+      ],
+      "scope_level": 0,
+      "fitch_notation": "14. R ∨ S",
+      "validation": {
+        "valid": true,
+        "error_type": "",
+        "error": ""
+      },
+      "semantic_valid": true,
+      "semantic_confidence": 1.0,
+      "semantic_error": "",
+      "semantic_warning": "",
+      "error_type": ""
+    }
+  ],
+  "requested_goal_formula": "R ∨ S",
+  "source_premises": [
+    "P ∨ Q",
+    "¬P ∨ R",
+    "¬Q ∨ S"
+  ],
   "lean_goal_repair_applied": true,
   "lean_goal_repair_method": "primitive_synthesis",
   "previous_error": [

@@ -2,63 +2,147 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P → Q",
+      "formula": "P ∨ Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P → Q"
+      "fitch_notation": "1. P ∨ Q"
     },
     {
       "line": 2,
-      "formula": "Q → R",
+      "formula": "¬P ∨ R",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "2. Q → R"
+      "fitch_notation": "2. ¬P ∨ R"
     },
     {
       "line": 3,
-      "formula": "¬R",
+      "formula": "¬Q ∨ S",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "3. ¬R"
+      "fitch_notation": "3. ¬Q ∨ S"
     },
     {
       "line": 4,
-      "formula": "P → R",
-      "rule": "HS",
-      "references": [
-        1,
-        2
-      ],
-      "scope_level": 0,
-      "fitch_notation": "4. P → R"
+      "formula": "¬R",
+      "rule": "assumption",
+      "references": [],
+      "scope_level": 1,
+      "fitch_notation": "  | 4. ¬R"
     },
     {
       "line": 5,
-      "formula": "¬Q",
-      "rule": "MT",
+      "formula": "¬P",
+      "rule": "DS",
       "references": [
         2,
-        3
+        4
       ],
-      "scope_level": 0,
-      "fitch_notation": "5. ¬Q"
+      "scope_level": 1,
+      "fitch_notation": "  | 5. ¬P"
     },
     {
       "line": 6,
-      "formula": "¬P",
-      "rule": "MT",
+      "formula": "Q",
+      "rule": "DS",
       "references": [
-        4,
+        1,
+        5
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 6. Q"
+    },
+    {
+      "line": 7,
+      "formula": "Q ∨ S",
+      "rule": "∨I",
+      "references": [
+        6
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 7. Q ∨ S"
+    },
+    {
+      "line": 8,
+      "formula": "Q ∨ S ∧ ¬Q ∨ S",
+      "rule": "∧I",
+      "references": [
+        7,
         3
       ],
+      "scope_level": 1,
+      "fitch_notation": "  | 8. Q ∨ S ∧ ¬Q ∨ S"
+    },
+    {
+      "line": 9,
+      "formula": "⊥",
+      "rule": "⊥E",
+      "references": [
+        8
+      ],
+      "scope_level": 1,
+      "fitch_notation": "  | 9. ⊥"
+    },
+    {
+      "line": 10,
+      "formula": "¬¬R",
+      "rule": "¬I",
+      "references": [
+        4,
+        9
+      ],
       "scope_level": 0,
-      "fitch_notation": "6. ¬P"
+      "fitch_notation": "10. ¬¬R"
+    },
+    {
+      "line": 11,
+      "formula": "R",
+      "rule": "¬E",
+      "references": [
+        10
+      ],
+      "scope_level": 0,
+      "fitch_notation": "11. R"
+    },
+    {
+      "line": 12,
+      "formula": "¬¬R",
+      "rule": "lean_derived",
+      "references": [
+        10
+      ],
+      "scope_level": 0,
+      "fitch_notation": "12. ¬¬R"
+    },
+    {
+      "line": 13,
+      "formula": "R",
+      "rule": "lean_derived",
+      "references": [
+        11
+      ],
+      "scope_level": 0,
+      "fitch_notation": "13. R"
+    },
+    {
+      "line": 14,
+      "formula": "R ∨ S",
+      "rule": "∨I",
+      "references": [
+        13
+      ],
+      "scope_level": 0,
+      "fitch_notation": "14. R ∨ S"
     }
   ],
-  "requested_goal_formula": "¬P",
+  "requested_goal_formula": "R ∨ S",
+  "source_premises": [
+    "P ∨ Q",
+    "¬P ∨ R",
+    "¬Q ∨ S"
+  ],
   "lean_goal_repair_applied": true,
   "lean_goal_repair_method": "primitive_synthesis",
   "previous_error": [

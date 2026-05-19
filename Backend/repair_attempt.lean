@@ -1,10 +1,7 @@
 theorem repair_attempt
-  (P Q R S T : Prop)
-  (h1 : (P /\ Q) -> R)
-  (h2 : (R /\ S) -> T)
-  (h3 : P)
-  (h4 : Q)
-  (h5 : S)
-  : T :=
+  (Q S : Prop)
+  (h1 : Q \/ S)
+  (h2 : ¬Q \/ S)
+  : Q \/ S /\ ¬Q \/ S :=
 by
   admit
