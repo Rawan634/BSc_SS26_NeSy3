@@ -3,7 +3,7 @@
 A web-based system for generating, verifying, and repairing Natural Deduction proofs using LLM generation + symbolic validation.
 
 📁 Project Structure (Simplified)
-
+```
 HONEST_TUTOR/
 ├── Backend/
 │   ├── golden_standard/      # Extracted inference rules
@@ -21,7 +21,7 @@ HONEST_TUTOR/
 │   └── styles.css
 │
 └── .gitignore
-
+```
 ⚙️ What it does
 
 🔍 Generates Natural Deduction proofs using an LLM  
