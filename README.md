@@ -1,6 +1,24 @@
 🧠 HONEST_TUTOR
 
-A web-based system for generating, verifying, and repairing Natural Deduction proofs using LLM generation + symbolic validation.
+A Glass-Box AI tutoring framework for Natural Deduction proof generation, verification, repair, and educational feedback.
+
+The system combines Large Language Models (LLMs), symbolic verification, semantic validation, automated repair mechanisms, and formal theorem proving to ensure that generated proofs satisfy logical correctness requirements before being presented to users.
+
+⚙️ Overview
+
+HONEST_TUTOR is designed as a multi-phase neuro-symbolic reasoning system that operates on Fitch-style Natural Deduction proofs.
+
+The framework follows a verification-first philosophy:
+
+1. Generate a proof using an LLM.
+2. Validate structural correctness.
+3. Validate scope and assumption handling.
+4. Validate semantic consistency.
+5. Repair detected errors.
+6. Formally reconstruct proofs when necessary.
+7. Present verified results through an educational frontend.
+
+This approach enables transparent and explainable proof tutoring rather than relying solely on probabilistic AI outputs.
 
 📁 Project Structure (Simplified)
 ```
@@ -22,14 +40,6 @@ HONEST_TUTOR/
 │
 └── .gitignore
 ```
-⚙️ What it does
-
-🔍 Generates Natural Deduction proofs using an LLM  
-✅ Validates proof structure and rule usage  
-📦 Checks scope and assumption correctness  
-🧠 Performs semantic verification (NLI)  
-🔧 Repairs invalid proofs automatically  
-🌐 Provides a simple web interface
 
 🚀 Running the project
 
