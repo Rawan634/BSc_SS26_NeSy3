@@ -117,5 +117,5 @@ python main.py
 
 ## Troubleshooting
 
-- If the app cannot reach Ollama, start the Ollama service first.
+- If the app cannot reach Ollama, start the Ollama server with `ollama serve` or make sure the background service is running.
 - If proof generation is slow, that is usually the model call or semantic repair step.
