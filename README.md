@@ -1,70 +1,121 @@
-🧠 HONEST_TUTOR
+# 🧠 HONEST_TUTOR
 
-A Glass-Box AI tutoring framework for Natural Deduction proof generation, verification, repair, and educational feedback.
+A glass-box AI tutoring framework for Natural Deduction proof generation, verification, repair, and educational feedback.
 
-The system combines Large Language Models (LLMs), symbolic verification, semantic validation, automated repair mechanisms, and formal theorem proving to ensure that generated proofs satisfy logical correctness requirements before being presented to users.
+The system combines large language models, symbolic validation, semantic checking, automated repair, and formal reconstruction to ensure proofs are checked before they are shown to the user.
 
-⚙️ Overview
+## Overview
 
-HONEST_TUTOR is designed as a multi-phase neuro-symbolic reasoning system that operates on Fitch-style Natural Deduction proofs.
+HONEST_TUTOR is a multi-phase neuro-symbolic reasoning system for Fitch-style Natural Deduction proofs.
 
-The framework follows a verification-first philosophy:
+The pipeline is:
 
-1. Generate a proof using an LLM.
+1. Generate a proof with an LLM.
 2. Validate structural correctness.
-3. Validate scope and assumption handling.
+3. Validate scope and assumptions.
 4. Validate semantic consistency.
 5. Repair detected errors.
-6. Formally reconstruct proofs when necessary.
-7. Present verified results through an educational frontend.
+6. Reconstruct proofs formally when needed.
+7. Present verified results through the frontend.
 
-This approach enables transparent and explainable proof tutoring rather than relying solely on probabilistic AI outputs.
+## Project Structure
 
-📁 Project Structure (Simplified)
-```
+```text
 HONEST_TUTOR/
 ├── Backend/
-│   ├── golden_standard/      # Extracted inference rules
 │   ├── phase6_repair/        # Structural repair engine
 │   ├── phase7/               # Lean-based semantic repair
-│   ├── phase8/               # Flask backend
-│   ├── semantic_verifier/    # NLI verification
+│   ├── phase8/               # Flask backend for the frontend
+│   ├── semantic_verifier/    # Semantic validation and NLI fallback
 │   ├── tutor_agent/          # LLM proof generation
-│   ├── validator/            # Structural & scope validation
-│   └── main.py               # Entry point
+│   ├── validator/            # Structural and scope validation
+│   └── main.py               # Batch / evaluation entry point
 │
 ├── Frontend/
 │   ├── index.html
 │   ├── script.js
 │   └── styles.css
 │
-└── .gitignore
+└── README.md
 ```
 
-🚀 Running the project
+## What You Need To Download
 
-Backend
+Before running the project, install or download these:
 
-```bash
-python Backend/main.py
+- Python 3.10 or newer
+- Ollama
+- A local Ollama model, such as `llama3`
+- Optional: Lean 4, if you want the formal repair path to work fully
+
+Optional but useful:
+
+- VS Code
+- The Python extension for VS Code
+
+## Setup
+
+### 1. Create and activate a virtual environment
+
+From the project root:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
-Frontend
+### 2. Install Python packages
 
-Open Frontend/index.html in a browser.
-
-🛠️ Tech Stack
-
-- Python / Flask  
-- JavaScript / HTML / CSS  
-- LLM: Llama 3 (via Ollama)  
-- Lean Theorem Prover (semantic repair)
-
-📚 Dependencies (quick setup)
-
-```bash
-pip install flask flask-cors requests pdfplumber transformers torch
+```powershell
+pip install flask ollama torch transformers PyPDF2
 ```
 
-> Requires Python 3.10+, Ollama (with Llama 3), and optionally Lean 4.
+If you plan to work on the backend evaluation scripts, this package set is enough for the current codebase.
 
+### 3. Install and start Ollama
+
+Install Ollama from the official website, then pull the model used by the app:
+
+```powershell
+ollama pull llama3
+```
+
+Make sure the Ollama server is running before starting the app.
+
+## Running The Project
+
+### Run the web app
+
+The frontend is served by the Flask backend, so you do not need to open `index.html` directly.
+
+From the project root:
+
+```powershell
+cd Backend
+python -m phase8.app
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5000/
+```
+
+### Run the proof pipeline / evaluation entry point
+
+If you want to run the backend proof-generation script directly:
+
+```powershell
+cd Backend
+python main.py
+```
+
+## Notes
+
+- The verified proof mode uses the backend API at `http://127.0.0.1:5000`.
+- The semantic repair path can use Lean-based reconstruction when available.
+
+## Troubleshooting
+
+- If the app cannot reach Ollama, start the Ollama service first.
+- If proof generation is slow, that is usually the model call or semantic repair step.
