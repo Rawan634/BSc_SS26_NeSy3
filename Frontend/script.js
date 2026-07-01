@@ -453,9 +453,10 @@ function buildProofRequestPayload() {
 function renderProof(payload) {
   switchMode('verified');
 
-  // If backend signalled a repair failure, show a student-facing message instead of an invalid proof.
-  if (payload && payload.repair_failed) {
-    const msg = payload.goal_error || 'Automatic repair failed. We could not produce a valid proof.';
+  // If the backend could not fully repair or validate the proof, show a student-facing message instead.
+  const repairFailed = Boolean(payload && (payload.repair_failed || payload.goal_achieved === false || payload.semantic_valid === false));
+  if (repairFailed) {
+    const msg = payload?.goal_error || payload?.repair_failed_reason || 'Automatic repair failed. We could not produce a valid proof.';
     clearProofOutput(msg);
     setStatus('Repair failed — no valid proof available.');
     return;
