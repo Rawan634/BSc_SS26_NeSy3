@@ -14,6 +14,7 @@ from .verified_mode import run_verified_mode
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 FRONTEND_DIR = BACKEND_DIR.parent / "Frontend"
 DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "llama3")
+ASSET_VERSION = str(int((FRONTEND_DIR / "script.js").stat().st_mtime))
 
 
 def _parse_premises(payload: Dict[str, Any]) -> List[str]:
@@ -47,11 +48,18 @@ def create_app() -> Flask:
         response.headers["Access-Control-Allow-Origin"] = "*"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
         return response
 
     @app.get("/")
     def index() -> Any:
-        return send_from_directory(FRONTEND_DIR, "index.html")
+        html_path = FRONTEND_DIR / "index.html"
+        html = html_path.read_text(encoding="utf-8")
+        html = html.replace('href="styles.css"', f'href="styles.css?v={ASSET_VERSION}"')
+        html = html.replace('src="script.js"', f'src="script.js?v={ASSET_VERSION}"')
+        return app.response_class(html, mimetype="text/html")
 
     @app.get("/help")
     def help_page() -> Any:

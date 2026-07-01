@@ -164,11 +164,11 @@
         "error_type": "",
         "error": ""
       },
-      "semantic_valid": true,
-      "semantic_confidence": 0.7977144718170166,
-      "semantic_error": "",
+      "semantic_valid": false,
+      "semantic_confidence": 0.33,
+      "semantic_error": "Semantic inconsistency for rule \u22a5E: the formulas [1: Q \u2228 S \u2227 \u00acQ \u2228 S] did not entail the conclusion '\u22a5' strongly enough. Reference formulas: [1: Q \u2228 S \u2227 \u00acQ \u2228 S]. Conclusion formula: '\u22a5'. Likely cause: the referenced lines express a different logical shape than the rule expects, or the conclusion was derived from the wrong subformula. NLI entailment score: 0.330 (threshold 0.70).",
       "semantic_warning": "",
-      "error_type": ""
+      "error_type": "LOW_ENTAILMENT_CONFIDENCE"
     },
     {
       "line": 10,

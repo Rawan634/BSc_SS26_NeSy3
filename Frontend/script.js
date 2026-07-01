@@ -451,6 +451,8 @@ function buildProofRequestPayload() {
 }
 
 function renderProof(payload) {
+  switchMode('verified');
+
   // If backend signalled a repair failure, show a student-facing message instead of an invalid proof.
   if (payload && payload.repair_failed) {
     const msg = payload.goal_error || 'Automatic repair failed. We could not produce a valid proof.';

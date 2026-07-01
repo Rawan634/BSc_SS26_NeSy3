@@ -2,291 +2,270 @@
   "steps": [
     {
       "line": 1,
-      "formula": "P ∨ Q",
+      "formula": "P → Q",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "1. P ∨ Q",
+      "fitch_notation": "1. P → Q",
       "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
+        "valid": false,
+        "error_type": "INVALID_PREMISE",
+        "error": "Premise 'P → Q' does not match any original problem premise."
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
+      "short_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "detailed_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "premise",
+      "rule_display": "premise",
+      "was_corrected": true,
+      "original_errors": [
+        "Line 1: Premise 'P → Q' does not match any original problem premise."
+      ],
+      "repair_action": "Fixed: Premise 'P → Q' does not match any original problem premise."
     },
     {
       "line": 2,
-      "formula": "¬P ∨ R",
+      "formula": "Q → R",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "2. ¬P ∨ R",
+      "fitch_notation": "2. Q → R",
       "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
+        "valid": false,
+        "error_type": "INVALID_PREMISE",
+        "error": "Premise 'Q → R' does not match any original problem premise."
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
+      "short_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "detailed_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "premise",
+      "rule_display": "premise",
+      "was_corrected": true,
+      "original_errors": [
+        "Line 2: Premise 'Q → R' does not match any original problem premise."
+      ],
+      "repair_action": "Fixed: Premise 'Q → R' does not match any original problem premise."
     },
     {
       "line": 3,
-      "formula": "¬Q ∨ S",
+      "formula": "R → S",
       "rule": "premise",
       "references": [],
       "scope_level": 0,
-      "fitch_notation": "3. ¬Q ∨ S",
+      "fitch_notation": "3. R → S",
       "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
+        "valid": false,
+        "error_type": "INVALID_PREMISE",
+        "error": "Premise 'R → S' does not match any original problem premise."
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
+      "short_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "detailed_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "premise",
+      "rule_display": "premise",
+      "was_corrected": true,
+      "original_errors": [
+        "Line 3: Premise 'R → S' does not match any original problem premise."
+      ],
+      "repair_action": "Fixed: Premise 'R → S' does not match any original problem premise."
     },
     {
       "line": 4,
-      "formula": "¬R",
-      "rule": "assumption",
+      "formula": "P",
+      "rule": "premise",
       "references": [],
-      "scope_level": 1,
-      "fitch_notation": "  | 4. ¬R",
+      "scope_level": 0,
+      "fitch_notation": "4. P",
       "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
+        "valid": false,
+        "error_type": "INVALID_PREMISE",
+        "error": "Premise 'P' does not match any original problem premise."
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": ""
+      "short_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "detailed_explanation": "Premise: This statement is given as true at the start of the proof.",
+      "explanation_example": [],
+      "example": [],
+      "rule_full_name": "premise",
+      "rule_display": "premise",
+      "was_corrected": true,
+      "original_errors": [
+        "Line 4: Premise 'P' does not match any original problem premise."
+      ],
+      "repair_action": "Fixed: Premise 'P' does not match any original problem premise."
     },
     {
       "line": 5,
-      "formula": "¬P",
-      "rule": "DS",
+      "formula": "Q",
+      "rule": "→E",
       "references": [
-        2,
+        1,
         4
       ],
-      "scope_level": 1,
-      "fitch_notation": "  | 5. ¬P",
+      "scope_level": 0,
+      "fitch_notation": "5. Q",
       "validation": {
         "valid": true,
         "error_type": "",
         "error": ""
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
+      "short_explanation": "Apply Modus Ponens to derive Q.",
+      "detailed_explanation": "Rule Used:\nModus Ponens\n\nWhy this rule works:\nIf P implies Q, and P is true, then Q must also be true.\n\nWhy we used it here:\nLine 1 states that P → Q.\nLine 4 confirms that P.\nTherefore, Q must be true.\n\nWhat this step achieves:\nThis combines P → Q with P.\nSo we can state Q, which moves us closer to the goal.",
+      "explanation_example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "rule_full_name": "Modus Ponens",
+      "rule_display": "→E (Modus Ponens)",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
     },
     {
       "line": 6,
-      "formula": "Q",
-      "rule": "DS",
+      "formula": "R",
+      "rule": "→E",
       "references": [
-        1,
+        2,
         5
       ],
-      "scope_level": 1,
-      "fitch_notation": "  | 6. Q",
+      "scope_level": 0,
+      "fitch_notation": "6. R",
       "validation": {
         "valid": true,
         "error_type": "",
         "error": ""
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
+      "short_explanation": "Apply Modus Ponens to derive R.",
+      "detailed_explanation": "Rule Used:\nModus Ponens\n\nWhy this rule works:\nIf P implies Q, and P is true, then Q must also be true.\n\nWhy we used it here:\nLine 2 states that Q → R.\nLine 5 confirms that Q.\nTherefore, R must be true.\n\nWhat this step achieves:\nThis combines Q → R with Q.\nSo we can state R, which moves us closer to the goal.",
+      "explanation_example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
+      ],
+      "rule_full_name": "Modus Ponens",
+      "rule_display": "→E (Modus Ponens)",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
     },
     {
       "line": 7,
-      "formula": "Q ∨ S",
-      "rule": "∨I",
+      "formula": "S",
+      "rule": "→E",
       "references": [
+        3,
         6
       ],
-      "scope_level": 1,
-      "fitch_notation": "  | 7. Q ∨ S",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 8,
-      "formula": "Q ∨ S ∧ ¬Q ∨ S",
-      "rule": "lean_derived",
-      "references": [
-        7,
-        3
-      ],
-      "scope_level": 1,
-      "fitch_notation": "  | 8. Q ∨ S ∧ ¬Q ∨ S",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": "",
-      "lean_repair_applied": true,
-      "repair_method": "lean_formal_proof",
-      "lean_semantic_only": true
-    },
-    {
-      "line": 9,
-      "formula": "⊥",
-      "rule": "⊥E",
-      "references": [
-        8
-      ],
-      "scope_level": 1,
-      "fitch_notation": "  | 9. ⊥",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 0.7977144718170166,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 10,
-      "formula": "¬¬R",
-      "rule": "¬I",
-      "references": [
-        4,
-        9
-      ],
       "scope_level": 0,
-      "fitch_notation": "10. ¬¬R",
+      "fitch_notation": "7. S",
       "validation": {
         "valid": true,
         "error_type": "",
         "error": ""
       },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 11,
-      "formula": "R",
-      "rule": "¬E",
-      "references": [
-        10
+      "short_explanation": "Apply Modus Ponens to derive S.",
+      "detailed_explanation": "Rule Used:\nModus Ponens\n\nWhy this rule works:\nIf P implies Q, and P is true, then Q must also be true.\n\nWhy we used it here:\nLine 3 states that R → S.\nLine 6 confirms that R.\nTherefore, S must be true.\n\nWhat this step achieves:\nThis combines R → S with R.\nSo we can state S, which moves us closer to the goal.",
+      "explanation_example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
       ],
-      "scope_level": 0,
-      "fitch_notation": "11. R",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 12,
-      "formula": "¬¬R",
-      "rule": "lean_derived",
-      "references": [
-        10
+      "example": [
+        "If:",
+        "Implication: P → Q",
+        "Antecedent: P",
+        "",
+        "Then:",
+        "Consequent: Q"
       ],
-      "scope_level": 0,
-      "fitch_notation": "12. ¬¬R",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 13,
-      "formula": "R",
-      "rule": "lean_derived",
-      "references": [
-        11
-      ],
-      "scope_level": 0,
-      "fitch_notation": "13. R",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
-    },
-    {
-      "line": 14,
-      "formula": "R ∨ S",
-      "rule": "∨I",
-      "references": [
-        13
-      ],
-      "scope_level": 0,
-      "fitch_notation": "14. R ∨ S",
-      "validation": {
-        "valid": true,
-        "error_type": "",
-        "error": ""
-      },
-      "semantic_valid": true,
-      "semantic_confidence": 1.0,
-      "semantic_error": "",
-      "semantic_warning": "",
-      "error_type": ""
+      "rule_full_name": "Modus Ponens",
+      "rule_display": "→E (Modus Ponens)",
+      "was_corrected": false,
+      "original_errors": [],
+      "repair_action": ""
     }
   ],
-  "requested_goal_formula": "R ∨ S",
-  "source_premises": [
-    "P ∨ Q",
-    "¬P ∨ R",
-    "¬Q ∨ S"
-  ],
-  "lean_goal_repair_applied": true,
-  "lean_goal_repair_method": "primitive_synthesis",
+  "requested_goal_formula": "S",
   "previous_error": [
     {
       "iteration": 1,
-      "phase3_errors": [],
+      "phase3_errors": [
+        "Line 1: Premise 'P → Q' does not match any original problem premise.",
+        "Line 2: Premise 'Q → R' does not match any original problem premise.",
+        "Line 3: Premise 'R → S' does not match any original problem premise.",
+        "Line 4: Premise 'P' does not match any original problem premise."
+      ],
+      "phase4_errors": []
+    },
+    {
+      "iteration": 2,
+      "phase3_errors": [
+        "Line 1: Premise 'P → Q' does not match any original problem premise.",
+        "Line 2: Premise 'Q → R' does not match any original problem premise.",
+        "Line 3: Premise 'R → S' does not match any original problem premise.",
+        "Line 4: Premise 'P' does not match any original problem premise."
+      ],
+      "phase4_errors": []
+    },
+    {
+      "iteration": 3,
+      "phase3_errors": [
+        "Line 1: Premise 'P → Q' does not match any original problem premise.",
+        "Line 2: Premise 'Q → R' does not match any original problem premise.",
+        "Line 3: Premise 'R → S' does not match any original problem premise.",
+        "Line 4: Premise 'P' does not match any original problem premise."
+      ],
+      "phase4_errors": []
+    },
+    {
+      "iteration": 4,
+      "phase3_errors": [
+        "Line 1: Premise 'P → Q' does not match any original problem premise.",
+        "Line 2: Premise 'Q → R' does not match any original problem premise.",
+        "Line 3: Premise 'R → S' does not match any original problem premise.",
+        "Line 4: Premise 'P' does not match any original problem premise."
+      ],
       "phase4_errors": []
     }
   ],
-  "goal_achieved": true,
-  "goal_error": ""
+  "phase": "phase8",
+  "annotation_metadata": {
+    "total_steps": 7,
+    "annotated_with_explanations": true
+  },
+  "overall_proof_strategy": "First, we use Modus Ponens to derive Q. Next, we use Modus Ponens to derive R. Finally, we apply Modus Ponens to use R → S and conclude S, which matches the goal S.",
+  "hover_metadata": {
+    "total_steps": 7,
+    "steps_with_corrections": 4,
+    "repair_iterations": 4
+  }
 }

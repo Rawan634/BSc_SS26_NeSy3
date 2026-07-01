@@ -12010,5 +12010,33 @@
     "total_steps": 14,
     "execution_time": 101.03499550001288,
     "final_status": "SUCCESS"
+  },
+  {
+    "problem_id": "test",
+    "initial_valid": false,
+    "phase3_errors": 2,
+    "phase4_errors": 1,
+    "repair_attempted": true,
+    "repair_success": true,
+    "semantic_valid": false,
+    "lean_success": true,
+    "goal_achieved": false,
+    "total_steps": 14,
+    "execution_time": 447.22221549996175,
+    "final_status": "FAILED"
+  },
+  {
+    "problem_id": "test",
+    "initial_valid": false,
+    "phase3_errors": 0,
+    "phase4_errors": 1,
+    "repair_attempted": true,
+    "repair_success": true,
+    "semantic_valid": false,
+    "lean_success": true,
+    "goal_achieved": false,
+    "total_steps": 14,
+    "execution_time": 161.93943769996986,
+    "final_status": "FAILED"
   }
 ]
